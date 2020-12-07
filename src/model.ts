@@ -369,4 +369,20 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			updated_at: new Date(this.get('updated_at').seconds),
 		};
 	}
+
+	on(callback: (model: Collection<this>) => void, onError?: Function) {
+		this.collection.onSnapshot(
+			(snapshot) => {
+				const data = new Collection<any>();
+				snapshot.forEach((document) =>
+					data.push({
+						...document.data(),
+						id: document.id,
+					})
+				);
+				callback(data);
+			},
+			(error) => (onError ? onError(error) : null)
+		);
+	}
 }
