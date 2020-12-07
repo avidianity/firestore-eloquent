@@ -74,7 +74,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 				});
 				const document = await collection.doc(id).get();
 				if (!document) {
-					return reject(new Error('Model not found.'));
+					return reject(new Error('Model does not exist.'));
 				}
 				const body = {
 					...document.data(),
@@ -273,25 +273,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	}
 
 	all() {
-		return new Promise<Collection<this>>((resolve, reject) => {
-			let collection = this.getCollection();
-			collection
-				.get()
-				.then((snapshot) => {
-					const data = new Collection<any>();
-					snapshot.forEach((document) => {
-						const body = {
-							...document.data(),
-							id: document.id,
-						};
-						const instance = new this.type();
-						instance.forceFill(body);
-						data.push(instance);
-					});
-					return resolve(data);
-				})
-				.catch((error) => reject(error));
-		});
+		return this.getAll();
 	}
 
 	create(data?: any) {
