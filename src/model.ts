@@ -110,6 +110,17 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		return this;
 	}
 
+	count() {
+		return new Promise<number>(async (resolve, reject) => {
+			try {
+				const collection = await this.all();
+				return resolve(collection.length);
+			} catch (error) {
+				return reject(error);
+			}
+		});
+	}
+
 	delete() {
 		return new Promise<void>(async (resolve, reject) => {
 			try {

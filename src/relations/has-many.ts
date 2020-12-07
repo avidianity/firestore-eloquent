@@ -65,4 +65,15 @@ export class HasMany<T extends Model> extends HasOneOrMany<T> {
 			}
 		});
 	}
+
+	count() {
+		return new Promise<number>(async (resolve, reject) => {
+			try {
+				const collection = await this.get();
+				return resolve(collection.length);
+			} catch (error) {
+				return reject(error);
+			}
+		});
+	}
 }
