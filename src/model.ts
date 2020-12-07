@@ -370,7 +370,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		};
 	}
 
-	on(callback: (model: Collection<this>) => void, onError?: Function) {
+	on(callback: (models: Collection<this>) => void, onError?: Function) {
 		this.collection.onSnapshot(
 			(snapshot) => {
 				const data = new Collection<any>();
