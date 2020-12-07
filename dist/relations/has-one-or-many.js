@@ -1,10 +1,13 @@
-export class HasOneOrMany {
+import { QueryBuilder } from '../query-builder';
+export class HasOneOrMany extends QueryBuilder {
     constructor(relation, parent, name) {
+        super();
         this.relation = relation;
         this.parent = parent;
         this.name = name;
     }
     get() {
+        throw new Error('get() needs to be defined on the child class.');
         return new Promise(() => { });
     }
     create(data) {

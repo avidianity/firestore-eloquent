@@ -1,9 +1,6 @@
 import { HasOneOrMany } from './has-one-or-many';
 export class HasMany extends HasOneOrMany {
     get() {
-        return this.getAll();
-    }
-    getAll() {
         return new Promise((resolve, reject) => {
             const foreignKey = this.getForeignKey();
             this.relation

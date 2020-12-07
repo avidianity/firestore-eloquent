@@ -13,7 +13,7 @@
 	"scripts": {
 		"build": "tsc"
 	},
-	"types": "dist/index.d.ts",
+	"types": "dist/firestore-eloquent.d.ts",
 	"prepublish": "tsc",
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"

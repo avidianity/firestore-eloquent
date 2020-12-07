@@ -1,4 +1,4 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
@@ -9,11 +9,9 @@ export class Model extends HasEvent {
         this.name = '';
         this.fillable = [];
         this.data = {};
-        // needs to be overwritten
-        this.db = firebase.firestore();
-        this.queries = [];
         this.type = Model;
         this.booting();
+        this.db = firebase.firestore();
         if (data !== undefined) {
             this.fill(data);
         }
@@ -28,10 +26,6 @@ export class Model extends HasEvent {
     }
     booting() { }
     booted() { }
-    clearQueries() {
-        this.queries = [];
-        return this;
-    }
     findOne(id) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -59,6 +53,9 @@ export class Model extends HasEvent {
                     }
                 });
                 const document = await collection.doc(id).get();
+                if (!document) {
+                    return reject(new Error('Model not found.'));
+                }
                 const body = {
                     ...document.data(),
                     id: document.id,
@@ -76,22 +73,6 @@ export class Model extends HasEvent {
     }
     getCollection() {
         return this.collection;
-    }
-    where(key, operator, value) {
-        this.queries.push({ key, operator, value, method: 'where' });
-        return this;
-    }
-    whereIn(key, values) {
-        this.queries.push({ key, values, method: 'whereIn' });
-        return this;
-    }
-    whereNotIn(key, values) {
-        this.queries.push({ key, values, method: 'whereNotIn' });
-        return this;
-    }
-    limit(amount) {
-        this.queries.push({ amount, method: 'limit' });
-        return this;
     }
     fill(data) {
         for (const [key, value] of Object.entries(data)) {
@@ -224,17 +205,23 @@ export class Model extends HasEvent {
         });
     }
     load(relations) {
-        return new Promise((resolve, reject) => {
-            relations.forEach(async (relation) => {
-                try {
-                    const data = await this[relation]().get();
-                    this.set(relation, data);
-                }
-                catch (error) {
-                    return reject(error);
-                }
-            });
-            return resolve(this);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const operations = [];
+                relations.forEach((relation) => {
+                    const promise = this[relation]().get();
+                    operations.push(promise);
+                });
+                const results = await Promise.all(operations);
+                results.forEach((data, index) => {
+                    const name = relations[index];
+                    this.set(name, data);
+                });
+                return resolve(this);
+            }
+            catch (error) {
+                return reject(error);
+            }
         });
     }
     all() {
@@ -260,11 +247,18 @@ export class Model extends HasEvent {
     }
     create(data) {
         return new Promise(async (resolve, reject) => {
+            if (data) {
+                this.fill(data);
+            }
+            if (Object.entries(this.data).length === 0) {
+                return reject(new Error('There is no data.'));
+            }
             try {
-                data.created_at = firebase.firestore.FieldValue.serverTimestamp();
-                data.updated_at = firebase.firestore.FieldValue.serverTimestamp();
+                const data = { ...this.data };
                 const self = new this.type();
-                self.forceFill(data);
+                self.fill(data);
+                self.set('created_at', firebase.firestore.FieldValue.serverTimestamp());
+                self.set('updated_at', firebase.firestore.FieldValue.serverTimestamp());
                 self.callEvent('creating').callEvent('saving');
                 const document = await (await self.collection.add(data)).get();
                 self.forceFill({
@@ -286,12 +280,17 @@ export class Model extends HasEvent {
         return new Promise(async (resolve, reject) => {
             const oldUpdatedAt = this.get('updated_at');
             try {
-                this.callEvent('updating');
+                this.callEvent('updating').callEvent('saving');
                 this.set('updated_at', firebase.firestore.FieldValue.serverTimestamp());
                 const data = { ...this.data };
                 delete data.id;
                 await this.collection.doc(this.data.id).update(data);
-                this.callEvent('updated');
+                const document = await this.collection.doc(this.data.id).get();
+                this.forceFill({
+                    ...document.data(),
+                    id: document.id,
+                });
+                this.callEvent('updated').callEvent('saved');
                 return resolve(this);
             }
             catch (error) {
@@ -307,28 +306,16 @@ export class Model extends HasEvent {
         if (data) {
             this.fill(data);
         }
-        return !('id' in this.data) || this.data.id.length === 0
-            ? new Promise(async (resolve, reject) => {
-                try {
-                    const data = this.data;
-                    data.created_at = firebase.firestore.FieldValue.serverTimestamp();
-                    data.updated_at = firebase.firestore.FieldValue.serverTimestamp();
-                    this.callEvent('creating').callEvent('saving');
-                    const document = await (await this.collection.add(data)).get();
-                    this.forceFill({
-                        ...document.data(),
-                        id: document.id,
-                    });
-                    this.callEvent('created').callEvent('saved');
-                    return resolve(this);
-                }
-                catch (error) {
-                    return reject(error);
-                }
-                finally {
-                    this.clearQueries();
-                }
-            })
+        return !('id' in this.data) ||
+            !this.data.id ||
+            this.data.id.length === 0
+            ? this.create()
             : this.update();
+    }
+    getDates() {
+        return {
+            created_at: new Date(this.get('created_at').seconds),
+            updated_at: new Date(this.get('updated_at').seconds),
+        };
     }
 }

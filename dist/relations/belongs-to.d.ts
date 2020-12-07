@@ -1,5 +1,6 @@
 import { Model } from '../model';
-export declare class BelongsTo<T extends Model> {
+import { QueryBuilder } from '../query-builder';
+export declare class BelongsTo<T extends Model> extends QueryBuilder {
     protected child: T;
     protected parent: T;
     protected name: string;

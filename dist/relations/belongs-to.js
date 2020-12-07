@@ -1,5 +1,7 @@
-export class BelongsTo {
+import { QueryBuilder } from '../query-builder';
+export class BelongsTo extends QueryBuilder {
     constructor(child, parent, name) {
+        super();
         this.child = child;
         this.parent = parent;
         this.name = name;
