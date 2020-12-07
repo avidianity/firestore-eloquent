@@ -105,9 +105,8 @@ export class Post extends Model<PostData> {
     type = Post;
     fillable = ['title', 'description'];
 
+    // register events here
     booted() {
-        // register events here
-
         this.creating((post) => {});
         this.created((post) => {});
 
