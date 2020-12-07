@@ -4,7 +4,7 @@ A library for creating eloquent models in firestore.
 
 ## Setup
 
-### Installation:
+### Installation
 
 __npm:__
 
@@ -18,7 +18,7 @@ __yarn:__
 yarn add @avidianity/firestore-eloquent
 ```
 
-### Usage:
+### Usage
 
 __Note:__ Firebase must be initialized before using these models.
 
@@ -53,7 +53,6 @@ export class Post extends Model<PostData> {
     fillable = ['title', 'description'];
 }
 ```
-
 
 CRUD Examples:
 
@@ -94,7 +93,7 @@ await post.findOne(id);
 
 ```
 
-### Events:
+### Events
 
 Events are also supported.
 
