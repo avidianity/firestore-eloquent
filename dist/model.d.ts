@@ -17,6 +17,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     getCollection(): firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
     fill(data: T): this;
     forceFill(data: any): this;
+    count(): Promise<number>;
     delete(): Promise<void>;
     set(key: string, value: any): this;
     get<T = any>(key: string): T;
@@ -32,4 +33,5 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
         created_at: Date;
         updated_at: Date;
     };
+    on(callback: (models: Collection<this>) => void, onError?: Function): void;
 }

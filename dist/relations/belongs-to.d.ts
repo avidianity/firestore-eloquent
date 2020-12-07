@@ -8,5 +8,6 @@ export declare class BelongsTo<T extends Model> extends QueryBuilder {
     get(): Promise<T>;
     set(parent: T): this;
     save(parent?: T): Promise<T>;
+    delete(): void;
     protected getForeignKey(): string;
 }

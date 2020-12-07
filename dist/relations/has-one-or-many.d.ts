@@ -10,5 +10,7 @@ export declare abstract class HasOneOrMany<T extends Model> extends QueryBuilder
     create(data: any): Promise<T>;
     update(data: any): Promise<T>;
     save(instance?: T): Promise<T>;
+    first(): Promise<T | null>;
+    delete(): Promise<void>;
     protected getForeignKey(): string;
 }

@@ -9,6 +9,23 @@ export class BelongsTo extends QueryBuilder {
     get() {
         return new Promise(async (resolve, reject) => {
             try {
+                this.queries.forEach((query) => {
+                    switch (query.method) {
+                        case 'where':
+                            const { operator, value } = query;
+                            this.parent.where(query.key, operator, value);
+                            break;
+                        case 'whereIn':
+                            this.parent.whereIn(query.key, query.values);
+                            break;
+                        case 'whereNotIn':
+                            this.parent.whereNotIn(query.key, query.values);
+                            break;
+                        case 'limit':
+                            this.parent.limit(query.amount);
+                            break;
+                    }
+                });
                 const parent = await this.parent.findOne(this.child.get(this.getForeignKey()));
                 this.child.set(this.name, parent);
                 return resolve(parent);
@@ -16,10 +33,14 @@ export class BelongsTo extends QueryBuilder {
             catch (error) {
                 reject(error);
             }
+            finally {
+                this.clearQueries();
+            }
         });
     }
     set(parent) {
         this.child.set(this.getForeignKey(), parent.get('id'));
+        this.child.set(this.name, parent);
         return this;
     }
     save(parent) {
@@ -36,6 +57,9 @@ export class BelongsTo extends QueryBuilder {
                 return reject(error);
             }
         });
+    }
+    delete() {
+        throw new Error('Cannot delete parent model.');
     }
     getForeignKey() {
         return this.parent.constructor.name.toLowerCase() + '_id';

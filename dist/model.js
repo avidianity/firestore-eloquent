@@ -54,7 +54,7 @@ export class Model extends HasEvent {
                 });
                 const document = await collection.doc(id).get();
                 if (!document) {
-                    return reject(new Error('Model not found.'));
+                    return reject(new Error('Model does not exist.'));
                 }
                 const body = {
                     ...document.data(),
@@ -87,6 +87,17 @@ export class Model extends HasEvent {
             this.set(key, value);
         }
         return this;
+    }
+    count() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const collection = await this.all();
+                return resolve(collection.length);
+            }
+            catch (error) {
+                return reject(error);
+            }
+        });
     }
     delete() {
         return new Promise(async (resolve, reject) => {
@@ -225,31 +236,13 @@ export class Model extends HasEvent {
         });
     }
     all() {
-        return new Promise((resolve, reject) => {
-            let collection = this.getCollection();
-            collection
-                .get()
-                .then((snapshot) => {
-                const data = new Collection();
-                snapshot.forEach((document) => {
-                    const body = {
-                        ...document.data(),
-                        id: document.id,
-                    };
-                    const instance = new this.type();
-                    instance.forceFill(body);
-                    data.push(instance);
-                });
-                return resolve(data);
-            })
-                .catch((error) => reject(error));
-        });
+        return this.getAll();
     }
     create(data) {
+        if (data) {
+            this.fill(data);
+        }
         return new Promise(async (resolve, reject) => {
-            if (data) {
-                this.fill(data);
-            }
             if (Object.entries(this.data).length === 0) {
                 return reject(new Error('There is no data.'));
             }
@@ -317,5 +310,15 @@ export class Model extends HasEvent {
             created_at: new Date(this.get('created_at').seconds),
             updated_at: new Date(this.get('updated_at').seconds),
         };
+    }
+    on(callback, onError) {
+        this.collection.onSnapshot((snapshot) => {
+            const data = new Collection();
+            snapshot.forEach((document) => data.push({
+                ...document.data(),
+                id: document.id,
+            }));
+            callback(data);
+        }, (error) => (onError ? onError(error) : null));
     }
 }
