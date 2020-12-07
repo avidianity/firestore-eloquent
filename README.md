@@ -1,6 +1,6 @@
 # firestore-eloquent
 
-A library for creating eloquent models in firestore inspired heavily by Laravel's Eloquent.
+A library for creating eloquent models in firestore inspired heavily by Laravel's Eloquent ORM.
 
 ## Setup
 
@@ -38,6 +38,10 @@ firebase.initializeApp({
 ```
 
 Making Models:
+
+Using and creating models should be similar to using Laravel Eloquent Models.
+
+Note: The Authenticatable class for user models is still under development.
 
 ```typescript
 import { Model, ModelData } from '@avidianity/firestore-eloquent';
