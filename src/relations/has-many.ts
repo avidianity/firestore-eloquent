@@ -4,11 +4,7 @@ import { HasOneOrMany } from './has-one-or-many';
 
 export class HasMany<T extends Model> extends HasOneOrMany<T> {
 	get() {
-		return this.getAll();
-	}
-
-	getAll(): Promise<Collection<T>> {
-		return new Promise((resolve, reject) => {
+		return new Promise<Collection<T>>((resolve, reject) => {
 			const foreignKey = this.getForeignKey();
 			this.relation
 				.where(foreignKey, '==', this.parent.get('id'))

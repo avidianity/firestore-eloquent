@@ -1,20 +1,24 @@
 import { Collection } from '../collection';
 import { InteractsWithRelationship } from '../contracts';
 import { Model } from '../model';
+import { QueryBuilder } from '../query-builder';
 
 export abstract class HasOneOrMany<T extends Model>
+	extends QueryBuilder
 	implements InteractsWithRelationship<T> {
 	protected relation: T;
 	protected parent: Model<any>;
 	protected name: string;
 
-	constructor(relation: T, parent: Model<any>, name: string) {
+	constructor(relation: T, parent: Model, name: string) {
+		super();
 		this.relation = relation;
 		this.parent = parent;
 		this.name = name;
 	}
 
 	get() {
+		throw new Error('get() needs to be defined on the child class.');
 		return new Promise<T | Collection<T> | any>(() => {});
 	}
 

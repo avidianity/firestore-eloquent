@@ -2,12 +2,12 @@ import { Collection } from './collection';
 import { Model } from './model';
 
 export interface ModelData {
-	id: string;
-	created_at: {
+	id?: string;
+	created_at?: {
 		nanoseconds: number;
 		seconds: number;
 	};
-	updated_at: {
+	updated_at?: {
 		nanoseconds: number;
 		seconds: number;
 	};

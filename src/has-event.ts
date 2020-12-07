@@ -10,15 +10,17 @@ export type EventTypes =
 	| 'saving'
 	| 'saved';
 
+export type Callback<T = any> = (model: T) => void;
+
 const events = {
-	creating: [] as Array<Function>,
-	created: [] as Array<Function>,
-	updating: [] as Array<Function>,
-	updated: [] as Array<Function>,
-	deleting: [] as Array<Function>,
-	deleted: [] as Array<Function>,
-	saving: [] as Array<Function>,
-	saved: [] as Array<Function>,
+	creating: [] as Array<Callback>,
+	created: [] as Array<Callback>,
+	updating: [] as Array<Callback>,
+	updated: [] as Array<Callback>,
+	deleting: [] as Array<Callback>,
+	deleted: [] as Array<Callback>,
+	saving: [] as Array<Callback>,
+	saved: [] as Array<Callback>,
 };
 
 export abstract class HasEvent extends HasRelationship {
@@ -52,7 +54,7 @@ export abstract class HasEvent extends HasRelationship {
 		return this;
 	}
 
-	registerEvent(name: EventTypes, callback: Function) {
+	registerEvent(name: EventTypes, callback: Callback<this>) {
 		events[name].push(callback);
 		return this;
 	}

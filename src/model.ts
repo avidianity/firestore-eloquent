@@ -1,4 +1,4 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
@@ -9,15 +9,14 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	protected name = '';
 	protected fillable: Array<string> = [];
 	protected data: T = {} as T;
-	// needs to be overwritten
-	protected db: firebase.firestore.Firestore = firebase.firestore();
+	protected db: firebase.firestore.Firestore;
 	protected collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
-	protected queries: Array<{ [key: string]: any }> = [];
 	type: any = Model;
 
 	constructor(data?: T) {
 		super();
 		this.booting();
+		this.db = firebase.firestore();
 		if (data !== undefined) {
 			this.fill(data);
 		}
@@ -34,11 +33,6 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	protected booting() {}
 
 	protected booted() {}
-
-	protected clearQueries() {
-		this.queries = [];
-		return this;
-	}
 
 	findOne(id: string) {
 		return new Promise<this>(async (resolve, reject) => {
@@ -79,6 +73,9 @@ export class Model<T extends ModelData = any> extends HasEvent {
 					}
 				});
 				const document = await collection.doc(id).get();
+				if (!document) {
+					return reject(new Error('Model not found.'));
+				}
 				const body = {
 					...document.data(),
 					id: document.id,
@@ -95,26 +92,6 @@ export class Model<T extends ModelData = any> extends HasEvent {
 
 	getCollection() {
 		return this.collection;
-	}
-
-	where(key: string, operator: string, value: any) {
-		this.queries.push({ key, operator, value, method: 'where' });
-		return this;
-	}
-
-	whereIn(key: string, values: Array<any>) {
-		this.queries.push({ key, values, method: 'whereIn' });
-		return this;
-	}
-
-	whereNotIn(key: string, values: Array<any>) {
-		this.queries.push({ key, values, method: 'whereNotIn' });
-		return this;
-	}
-
-	limit(amount: number) {
-		this.queries.push({ amount, method: 'limit' });
-		return this;
 	}
 
 	fill(data: T) {
@@ -317,13 +294,26 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		});
 	}
 
-	create(data: any) {
+	create(data?: any) {
 		return new Promise<this>(async (resolve, reject) => {
+			if (data) {
+				this.fill(data);
+			}
+			if (Object.entries(this.data).length === 0) {
+				return reject(new Error('There is no data.'));
+			}
 			try {
-				data.created_at = firebase.firestore.FieldValue.serverTimestamp();
-				data.updated_at = firebase.firestore.FieldValue.serverTimestamp();
+				const data = { ...this.data };
 				const self = new this.type();
-				self.forceFill(data);
+				self.fill(data);
+				self.set(
+					'created_at',
+					firebase.firestore.FieldValue.serverTimestamp()
+				);
+				self.set(
+					'updated_at',
+					firebase.firestore.FieldValue.serverTimestamp()
+				);
 				self.callEvent('creating').callEvent('saving');
 				const document = await (await self.collection.add(data)).get();
 				self.forceFill({
@@ -353,6 +343,11 @@ export class Model<T extends ModelData = any> extends HasEvent {
 				const data = { ...this.data } as any;
 				delete data.id;
 				await this.collection.doc(this.data.id).update(data);
+				const document = await this.collection.doc(this.data.id).get();
+				this.forceFill({
+					...document.data(),
+					id: document.id,
+				});
 				this.callEvent('updated').callEvent('saved');
 				return resolve(this);
 			} catch (error) {
@@ -369,36 +364,16 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			this.fill(data);
 		}
 		return !('id' in this.data) ||
-			this.data.id.length === 0 ||
-			!this.data.id
-			? new Promise(async (resolve, reject) => {
-					try {
-						const data = this.data as any;
-						data.created_at = firebase.firestore.FieldValue.serverTimestamp();
-						data.updated_at = firebase.firestore.FieldValue.serverTimestamp();
-						this.callEvent('creating').callEvent('saving');
-						const document = await (
-							await this.collection.add(data)
-						).get();
-						this.forceFill({
-							...document.data(),
-							id: document.id,
-						});
-						this.callEvent('created').callEvent('saved');
-						return resolve(this as any);
-					} catch (error) {
-						return reject(error);
-					} finally {
-						this.clearQueries();
-					}
-			  })
+			!this.data.id ||
+			this.data.id.length === 0
+			? this.create()
 			: this.update();
 	}
 
 	getDates() {
 		return {
-			created_at: new Date(this.data.created_at.seconds),
-			updated_at: new Date(this.data.updated_at.seconds),
+			created_at: new Date(this.get('created_at').seconds),
+			updated_at: new Date(this.get('updated_at').seconds),
 		};
 	}
 }

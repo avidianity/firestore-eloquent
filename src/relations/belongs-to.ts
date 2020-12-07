@@ -1,11 +1,13 @@
 import { Model } from '../model';
+import { QueryBuilder } from '../query-builder';
 
-export class BelongsTo<T extends Model> {
+export class BelongsTo<T extends Model> extends QueryBuilder {
 	protected child: T;
 	protected parent: T;
 	protected name: string;
 
 	constructor(child: T, parent: T, name: string) {
+		super();
 		this.child = child;
 		this.parent = parent;
 		this.name = name;
