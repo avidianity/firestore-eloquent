@@ -1,6 +1,6 @@
 # firestore-eloquent
 
-A library for creating eloquent models in firestore.
+A library for creating eloquent models in firestore inspired heavily by Laravel's Eloquent.
 
 ## Setup
 
