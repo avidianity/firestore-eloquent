@@ -277,10 +277,10 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	}
 
 	create(data?: any) {
+		if (data) {
+			this.fill(data);
+		}
 		return new Promise<this>(async (resolve, reject) => {
-			if (data) {
-				this.fill(data);
-			}
 			if (Object.entries(this.data).length === 0) {
 				return reject(new Error('There is no data.'));
 			}

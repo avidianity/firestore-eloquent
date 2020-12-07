@@ -127,7 +127,7 @@ export class Post extends Model<PostData> {
 
 ### Relationships
 
-Currently, only hasOne, hasMany and belongsTo is supported.
+Currently, only `hasOne`, `hasMany` and `belongsTo` are supported.
 
 Example:
 
