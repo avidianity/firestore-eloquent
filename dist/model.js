@@ -9,6 +9,7 @@ export class Model extends HasEvent {
         this.name = '';
         this.fillable = [];
         this.data = {};
+        this.listeners = [];
         this.type = Model;
         this.booting();
         this.db = firebase.firestore();
@@ -23,9 +24,43 @@ export class Model extends HasEvent {
         }
         this.collection = this.db.collection(this.name);
         this.booted();
+        this.listen();
     }
     booting() { }
     booted() { }
+    listen() {
+        this.collection.onSnapshot((snapshot) => {
+            const data = new Collection();
+            snapshot.forEach((document) => {
+                const self = new this.type();
+                self.forceFill({
+                    ...document.data(),
+                    id: document.id,
+                });
+                data.push(self);
+            });
+            this.listeners.forEach((listener) => {
+                if (listener !== null) {
+                    listener.success(data);
+                }
+            });
+        }, (error) => {
+            this.listeners.forEach((listener) => {
+                if (listener !== null && listener.onError !== undefined) {
+                    listener.onError(error);
+                }
+            });
+        });
+    }
+    entries() {
+        return Object.entries(this.getData());
+    }
+    values() {
+        return Object.values(this.getData());
+    }
+    keys() {
+        return Object.keys(this.getData());
+    }
     findOne(id) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -149,7 +184,10 @@ export class Model extends HasEvent {
         return this.data[key];
     }
     getData() {
-        return this.data;
+        return {
+            ...this.data,
+            ...this.getDates(),
+        };
     }
     first() {
         return new Promise(async (resolve, reject) => {
@@ -311,14 +349,18 @@ export class Model extends HasEvent {
             updated_at: new Date(this.get('updated_at').seconds),
         };
     }
-    on(callback, onError) {
-        this.collection.onSnapshot((snapshot) => {
-            const data = new Collection();
-            snapshot.forEach((document) => data.push({
-                ...document.data(),
-                id: document.id,
-            }));
-            callback(data);
-        }, (error) => (onError ? onError(error) : null));
+    addListener(success, onError) {
+        return (this.listeners.push({
+            success,
+            onError,
+        }) - 1);
+    }
+    removeListener(index) {
+        this.listeners.splice(index, 1, null);
+        return this;
+    }
+    clearListeners() {
+        this.listeners = [];
+        return this;
     }
 }

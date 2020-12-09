@@ -3,7 +3,7 @@ import 'firebase/firestore';
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
 import pluralize from 'pluralize';
-import { InteractsWithRelationship, ModelData } from './contracts';
+import { InteractsWithRelationship, Listener, ModelData } from './contracts';
 
 export class Model<T extends ModelData = any> extends HasEvent {
 	protected name = '';
@@ -11,6 +11,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	protected data: T = {} as T;
 	protected db: firebase.firestore.Firestore;
 	protected collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
+	protected listeners: Array<Listener | null> = [];
 	type: any = Model;
 
 	constructor(data?: T) {
@@ -28,11 +29,52 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		}
 		this.collection = this.db.collection(this.name);
 		this.booted();
+		this.listen();
 	}
 
 	protected booting() {}
 
 	protected booted() {}
+
+	protected listen() {
+		this.collection.onSnapshot(
+			(snapshot) => {
+				const data = new Collection<this>();
+				snapshot.forEach((document) => {
+					const self = new this.type();
+					self.forceFill({
+						...document.data(),
+						id: document.id,
+					});
+					data.push(self);
+				});
+				this.listeners.forEach((listener) => {
+					if (listener !== null) {
+						listener.success(data);
+					}
+				});
+			},
+			(error) => {
+				this.listeners.forEach((listener) => {
+					if (listener !== null && listener.onError !== undefined) {
+						listener.onError(error);
+					}
+				});
+			}
+		);
+	}
+
+	entries() {
+		return Object.entries(this.getData());
+	}
+
+	values() {
+		return Object.values(this.getData());
+	}
+
+	keys() {
+		return Object.keys(this.getData());
+	}
 
 	findOne(id: string) {
 		return new Promise<this>(async (resolve, reject) => {
@@ -184,7 +226,10 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	}
 
 	getData() {
-		return this.data;
+		return {
+			...this.data,
+			...this.getDates(),
+		};
 	}
 
 	first() {
@@ -242,7 +287,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 					}
 				});
 				const snapshot = await collection.get();
-				const data = new Collection<any>();
+				const data = new Collection<this>();
 				snapshot.forEach((document: any) => {
 					const body = {
 						...document.data(),
@@ -370,19 +415,25 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		};
 	}
 
-	on(callback: (models: Collection<this>) => void, onError?: Function) {
-		this.collection.onSnapshot(
-			(snapshot) => {
-				const data = new Collection<any>();
-				snapshot.forEach((document) =>
-					data.push({
-						...document.data(),
-						id: document.id,
-					})
-				);
-				callback(data);
-			},
-			(error) => (onError ? onError(error) : null)
+	addListener(
+		success: (models: Collection<this>) => void,
+		onError?: Function
+	) {
+		return (
+			this.listeners.push({
+				success,
+				onError,
+			}) - 1
 		);
+	}
+
+	removeListener(index: number) {
+		this.listeners.splice(index, 1, null);
+		return this;
+	}
+
+	clearListeners() {
+		this.listeners = [];
+		return this;
 	}
 }

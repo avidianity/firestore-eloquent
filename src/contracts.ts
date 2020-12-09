@@ -19,3 +19,8 @@ export interface InteractsWithRelationship<T extends Model> {
 	save(instance?: T): Promise<T | Collection<T>>;
 	update(data: any): Promise<T | Collection<T>>;
 }
+
+export interface Listener {
+	success(collection: Array<any>): void;
+	onError?: Function;
+}
