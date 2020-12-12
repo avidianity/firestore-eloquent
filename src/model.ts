@@ -7,7 +7,7 @@ import { InteractsWithRelationship, Listener, ModelData } from './contracts';
 
 export class Model<T extends ModelData = any> extends HasEvent {
 	protected name = '';
-	protected fillable: Array<string> = [];
+	protected fillable: Array<string>;
 	protected data: T = {} as T;
 	protected db: firebase.firestore.Firestore;
 	protected collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
@@ -17,10 +17,8 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	constructor(data?: T) {
 		super();
 		this.booting();
+		this.fillable = [];
 		this.db = firebase.firestore();
-		if (data !== undefined) {
-			this.fill(data);
-		}
 		if (this.name.length === 0) {
 			this.name = pluralize(this.constructor.name.toLowerCase());
 		}
@@ -28,6 +26,9 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			this.data.id === '';
 		}
 		this.collection = this.db.collection(this.name);
+		if (data !== undefined) {
+			this.fill(data);
+		}
 		this.booted();
 		this.listen();
 	}
@@ -138,7 +139,10 @@ export class Model<T extends ModelData = any> extends HasEvent {
 
 	fill(data: T) {
 		for (const [key, value] of Object.entries(data)) {
-			if (this.fillable.includes(key)) {
+			if (
+				this.fillable.find((filler) => filler === key) !== undefined ||
+				this.fillable.includes(key)
+			) {
 				this.set(key, value);
 			}
 		}
@@ -337,31 +341,28 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			this.fill(data);
 		}
 		return new Promise<this>(async (resolve, reject) => {
-			if (Object.entries(this.data).length === 0) {
-				return reject(new Error('There is no data.'));
-			}
 			try {
 				const data = { ...this.data };
-				const self = new this.type();
-				self.fill(data);
-				self.set(
+				this.fill(data);
+				this.set(
 					'created_at',
 					firebase.firestore.FieldValue.serverTimestamp()
 				);
-				self.set(
+				this.set(
 					'updated_at',
 					firebase.firestore.FieldValue.serverTimestamp()
 				);
-				self.callEvent('creating').callEvent('saving');
-				const document = await (await self.collection.add(data)).get();
-				self.forceFill({
+				this.callEvent('creating').callEvent('saving');
+				const ref = await this.getCollection().add(data);
+				const document = await ref.get();
+				this.forceFill({
 					...document.data(),
 					id: document.id,
 				});
-				self.callEvent('created').callEvent('saved');
-				resolve(self as any);
+				this.callEvent('created').callEvent('saved');
+				return resolve(this);
 			} catch (error) {
-				reject(error);
+				return reject(error);
 			}
 		});
 	}
@@ -408,10 +409,18 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			: this.update();
 	}
 
+	has(key: string) {
+		return this.get(key) !== null;
+	}
+
 	getDates() {
 		return {
-			created_at: new Date(this.get('created_at').seconds),
-			updated_at: new Date(this.get('updated_at').seconds),
+			created_at: this.has('created_at')
+				? new Date(this.get('created_at').seconds)
+				: new Date(Date.now()),
+			updated_at: this.has('updated_at')
+				? new Date(this.get('updated_at').seconds)
+				: new Date(Date.now()),
 		};
 	}
 
