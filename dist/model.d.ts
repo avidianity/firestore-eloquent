@@ -37,6 +37,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     create(data?: any): Promise<this>;
     update(data?: any): Promise<this>;
     save(data?: any): Promise<this>;
+    has(key: string): boolean;
     getDates(): {
         created_at: Date;
         updated_at: Date;

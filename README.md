@@ -9,13 +9,13 @@ A library for creating eloquent models in firestore inspired heavily by Laravel'
 __npm:__
 
 ```npm
-npm install @avidianity/firestore-eloquent
+npm install avidianity/firestore-eloquent
 ```
 
 __yarn:__
 
 ```yarn
-yarn add @avidianity/firestore-eloquent
+yarn add avidianity/firestore-eloquent
 ```
 
 ### Usage
@@ -54,7 +54,10 @@ export interface PostData extends ModelData {
 
 export class Post extends Model<PostData> {
     type = Post;
-    fillable = ['title', 'description'];
+    
+    booting() {
+        this.fillable = ['title', 'description'];
+    }
 }
 ```
 
@@ -84,7 +87,7 @@ await post.update(); /* or */ post.update(data);
 await post.delete();
 
 // save
-await post.save();
+await post.save(); /* or */ post.save(data);
 
 // fetching
 await post.all();
@@ -106,7 +109,10 @@ Example:
 ```typescript
 export class Post extends Model<PostData> {
     type = Post;
-    fillable = ['title', 'description'];
+
+    booting() {
+        this.fillable = ['title', 'description'];
+    }
 
     // register events here
     booted() {
@@ -134,7 +140,10 @@ Example:
 ```typescript
 export class Post extends Model<PostData> {
     type = Post;
-    fillable = ['title', 'description'];
+    
+    booting() {
+        this.fillable = ['title', 'description'];
+    }
 
     comments() {
         return this.hasMany(new Comment(), 'comments');
@@ -143,7 +152,10 @@ export class Post extends Model<PostData> {
 
 export class Comment extends Model<CommentData> {
     type = Comment;
-    fillable = ['body'];
+    
+    booting() {
+        this.fillable = ['body'];
+    }
 
     post() {
         return this.belongsTo(new Post(), 'post');

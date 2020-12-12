@@ -16,8 +16,8 @@ export class Model<T extends ModelData = any> extends HasEvent {
 
 	constructor(data?: T) {
 		super();
-		this.booting();
 		this.fillable = [];
+		this.booting();
 		this.db = firebase.firestore();
 		if (this.name.length === 0) {
 			this.name = pluralize(this.constructor.name.toLowerCase());
