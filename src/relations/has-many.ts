@@ -1,8 +1,12 @@
 import { Collection } from '../collection';
+import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
-export class HasMany<T extends Model> extends HasOneOrMany<T> {
+export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
+	T,
+	D
+> {
 	get() {
 		return new Promise<Collection<T>>((resolve, reject) => {
 			this.queries.forEach((query) => {

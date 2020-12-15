@@ -1,6 +1,6 @@
 export class Collection extends Array {
-    async load(relations) {
-        const results = await Promise.all(this.map((item) => item.load(relations)));
+    async load(...relations) {
+        const results = await Promise.all(this.map((item) => item.load(...relations)));
         results.forEach((item, index) => this.splice(index, 1, item));
         return this;
     }

@@ -25,7 +25,7 @@ export function makeCollection(name: string) {
 
 export const listened: Array<string> = [];
 
-export function listen(model: typeof Model) {
+export function listen<T extends Model>(model: { new (): T }) {
 	const name = new model().getTableName();
 	if (!(name in collections) || listened.includes(name)) {
 		return;
@@ -64,7 +64,7 @@ export function listen(model: typeof Model) {
 }
 
 export function addListener<T extends Model>(
-	collection: typeof Model,
+	collection: { new (): T },
 	success: (models: Collection<T>) => void,
 	onError?: Function
 ) {
@@ -80,7 +80,10 @@ export function addListener<T extends Model>(
 	);
 }
 
-export function removeListener(collection: typeof Model, index: number) {
+export function removeListener<T extends Model>(
+	collection: { new (): T },
+	index: number
+) {
 	const name = new collection().getTableName();
 	if (!(name in listeners)) {
 		return;
@@ -88,7 +91,7 @@ export function removeListener(collection: typeof Model, index: number) {
 	listeners[name].splice(index, 1, null);
 }
 
-export function clearListeners(collection: typeof Model) {
+export function clearListeners<T extends Model>(collection: { new (): T }) {
 	const name = new collection().getTableName();
 	if (!(name in listeners)) {
 		return;

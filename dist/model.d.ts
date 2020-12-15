@@ -2,7 +2,7 @@ import { Collection } from './collection';
 import { HasEvent } from './has-event';
 import { ModelData } from './contracts';
 import firebase from 'firebase';
-export declare class Model<T extends ModelData = any> extends HasEvent {
+export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     protected fillables: Array<string>;
     protected data: T;
     type: any;
@@ -33,12 +33,13 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     };
     first(): Promise<this | null>;
     getAll(): Promise<Collection<this>>;
-    load(relations: Array<string>): Promise<this>;
+    load(...relations: Array<string>): Promise<this>;
     all(): Promise<Collection<this>>;
-    create(data?: any): Promise<this>;
-    update(data?: any): Promise<this>;
+    create(data?: T): Promise<this>;
+    update(data?: Partial<T>): Promise<this>;
     id(): string;
-    save(data?: any): Promise<this>;
+    save(data?: Partial<T>): Promise<this>;
+    unset<K extends keyof T>(key: K): this;
     has<K extends keyof T>(key: K): boolean;
     getDates(): {
         created_at: Date | null;

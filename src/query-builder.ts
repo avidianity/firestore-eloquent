@@ -1,3 +1,4 @@
+import { ModelData } from './contracts';
 import { HasMacros } from './has-macros';
 
 type Modes = 'where' | 'whereIn' | 'whereNotIn' | 'limit';
@@ -9,7 +10,7 @@ interface Query {
 	[key: string]: any;
 }
 
-export class QueryBuilder extends HasMacros {
+export class QueryBuilder<T extends ModelData> extends HasMacros {
 	protected queries: Array<Query> = [];
 
 	protected clearQueries() {
@@ -17,18 +18,34 @@ export class QueryBuilder extends HasMacros {
 		return this;
 	}
 
-	where(key: string, operator: string, value: any) {
-		this.queries.push({ key, operator, value, method: 'where', amount: 0 });
+	where<K extends keyof T>(key: K, operator: string, value: T[K]) {
+		this.queries.push({
+			key: <string>key,
+			operator,
+			value,
+			method: 'where',
+			amount: 0,
+		});
 		return this;
 	}
 
-	whereIn(key: string, values: Array<any>) {
-		this.queries.push({ key, values, method: 'whereIn', amount: 0 });
+	whereIn<K extends keyof T>(key: K, values: Array<T[K]>) {
+		this.queries.push({
+			key: <string>key,
+			values,
+			method: 'whereIn',
+			amount: 0,
+		});
 		return this;
 	}
 
-	whereNotIn(key: string, values: Array<any>) {
-		this.queries.push({ key, values, method: 'whereNotIn', amount: 0 });
+	whereNotIn<K extends keyof T>(key: K, values: Array<T[K]>) {
+		this.queries.push({
+			key: <string>key,
+			values,
+			method: 'whereNotIn',
+			amount: 0,
+		});
 		return this;
 	}
 

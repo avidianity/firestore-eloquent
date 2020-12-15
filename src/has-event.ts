@@ -1,3 +1,4 @@
+import { ModelData } from './contracts';
 import { HasRelationship } from './has-relationship';
 
 export type EventTypes =
@@ -27,7 +28,7 @@ const events = {
 	saved: {} as Event,
 };
 
-export abstract class HasEvent extends HasRelationship {
+export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
 	protected name: string;
 	creating(callback: (thisArg: this) => void) {
 		return this.registerEvent('creating', callback);

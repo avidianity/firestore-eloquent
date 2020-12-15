@@ -5,7 +5,7 @@ import { InteractsWithRelationship, ModelData } from './contracts';
 import { makeCollection } from './db';
 import firebase from 'firebase';
 
-export class Model<T extends ModelData = any> extends HasEvent {
+export class Model<T extends ModelData = any> extends HasEvent<T> {
 	protected fillables: Array<string>;
 	protected data: T = {} as T;
 	type: any = Model;
@@ -327,7 +327,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		}
 	}
 
-	async load(relations: Array<string>) {
+	async load(...relations: Array<string>) {
 		const operations = relations.map((relation) =>
 			((this as any)[relation]() as InteractsWithRelationship<this>).get()
 		);
@@ -343,7 +343,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		return this.getAll();
 	}
 
-	async create(data?: any) {
+	async create(data?: T) {
 		if (data) {
 			this.fill(data);
 		}
@@ -368,7 +368,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		return this;
 	}
 
-	async update(data?: any) {
+	async update(data?: Partial<T>) {
 		if (data) {
 			this.fill(data);
 		}
@@ -399,7 +399,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		return this.get('id') as string;
 	}
 
-	save(data?: any): Promise<this> {
+	save(data?: Partial<T>): Promise<this> {
 		if (data) {
 			this.fill(data);
 		}
@@ -408,6 +408,11 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			this.data.id.length === 0
 			? this.create()
 			: this.update();
+	}
+
+	unset<K extends keyof T>(key: K) {
+		delete this.data[key];
+		return this;
 	}
 
 	has<K extends keyof T>(key: K) {

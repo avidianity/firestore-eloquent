@@ -9,7 +9,7 @@ A library for creating eloquent models in firestore inspired heavily by Laravel'
 __npm:__
 
 ```npm
-npm install afirestore-eloquent
+npm install firestore-eloquent
 ```
 
 __yarn:__

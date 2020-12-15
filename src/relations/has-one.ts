@@ -1,7 +1,11 @@
+import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
-export class HasOne<T extends Model> extends HasOneOrMany<T> {
+export class HasOne<T extends Model, D extends ModelData> extends HasOneOrMany<
+	T,
+	D
+> {
 	get() {
 		return new Promise<T | null>(async (resolve, reject) => {
 			try {

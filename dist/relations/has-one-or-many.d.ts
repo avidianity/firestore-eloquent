@@ -1,7 +1,7 @@
-import { InteractsWithRelationship } from '../contracts';
+import { InteractsWithRelationship, ModelData } from '../contracts';
 import { Model } from '../model';
 import { QueryBuilder } from '../query-builder';
-export declare abstract class HasOneOrMany<T extends Model> extends QueryBuilder implements InteractsWithRelationship<T> {
+export declare abstract class HasOneOrMany<T extends Model, D extends ModelData> extends QueryBuilder<D> implements InteractsWithRelationship<T> {
     protected relation: T;
     protected parent: Model<any>;
     protected name: string;

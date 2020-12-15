@@ -11,7 +11,15 @@ export declare const listeners: {
 };
 export declare function makeCollection(name: string): firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
 export declare const listened: Array<string>;
-export declare function listen(model: typeof Model): void;
-export declare function addListener<T extends Model>(collection: typeof Model, success: (models: Collection<T>) => void, onError?: Function): number;
-export declare function removeListener(collection: typeof Model, index: number): void;
-export declare function clearListeners(collection: typeof Model): void;
+export declare function listen<T extends Model>(model: {
+    new (): T;
+}): void;
+export declare function addListener<T extends Model>(collection: {
+    new (): T;
+}, success: (models: Collection<T>) => void, onError?: Function): number;
+export declare function removeListener<T extends Model>(collection: {
+    new (): T;
+}, index: number): void;
+export declare function clearListeners<T extends Model>(collection: {
+    new (): T;
+}): void;

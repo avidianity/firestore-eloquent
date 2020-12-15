@@ -9,15 +9,31 @@ export class QueryBuilder extends HasMacros {
         return this;
     }
     where(key, operator, value) {
-        this.queries.push({ key, operator, value, method: 'where', amount: 0 });
+        this.queries.push({
+            key: key,
+            operator,
+            value,
+            method: 'where',
+            amount: 0,
+        });
         return this;
     }
     whereIn(key, values) {
-        this.queries.push({ key, values, method: 'whereIn', amount: 0 });
+        this.queries.push({
+            key: key,
+            values,
+            method: 'whereIn',
+            amount: 0,
+        });
         return this;
     }
     whereNotIn(key, values) {
-        this.queries.push({ key, values, method: 'whereNotIn', amount: 0 });
+        this.queries.push({
+            key: key,
+            values,
+            method: 'whereNotIn',
+            amount: 0,
+        });
         return this;
     }
     limit(amount) {
