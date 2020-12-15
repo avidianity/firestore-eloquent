@@ -10,7 +10,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	protected data: T = {} as T;
 	type: any = Model;
 
-	constructor(data?: T) {
+	constructor(data?: any) {
 		super();
 		this.booting();
 		this.fillables = this.fillable();
@@ -21,7 +21,6 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		if (data !== undefined) {
 			this.fill(data);
 		}
-		makeCollection(this.name);
 		this.booted();
 	}
 
@@ -47,6 +46,10 @@ export class Model<T extends ModelData = any> extends HasEvent {
 
 	getTableName() {
 		return this.name;
+	}
+
+	toJSON() {
+		return this.getData();
 	}
 
 	async findOne(id: string) {
@@ -107,7 +110,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		return makeCollection(this.name);
 	}
 
-	fill(data: T) {
+	fill(data: any) {
 		for (const [key, value] of Object.entries(data)) {
 			if (
 				this.fillables.find((filler) => filler === key) !== undefined ||
@@ -341,8 +344,8 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			: this.update();
 	}
 
-	has(key: string) {
-		return this.get(key) !== null;
+	has<K extends keyof T>(key: K) {
+		return this.get(key as string) !== null;
 	}
 
 	getDates() {
