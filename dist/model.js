@@ -10,9 +10,7 @@ export class Model extends HasEvent {
         this.type = Model;
         this.booting();
         this.fillables = this.fillable();
-        if (this.name.length === 0) {
-            this.name = pluralize(this.constructor.name.toLowerCase());
-        }
+        this.name = pluralize(this.constructor.name.toLowerCase());
         if (!('id' in this.data)) {
             this.data.id === '';
         }
