@@ -1,23 +1,19 @@
-import firebase from 'firebase/app';
-import 'firebase/firestore';
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
-import { Listener, ModelData } from './contracts';
+import { ModelData } from './contracts';
+import firebase from 'firebase';
 export declare class Model<T extends ModelData = any> extends HasEvent {
-    protected name: string;
-    protected fillable: Array<string>;
+    protected fillables: Array<string>;
     protected data: T;
-    protected db: firebase.firestore.Firestore;
-    protected collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
-    protected listeners: Array<Listener | null>;
     type: any;
     constructor(data?: T);
+    protected fillable(): Array<string>;
     protected booting(): void;
     protected booted(): void;
-    protected listen(): void;
     entries(): [string, any][];
     values(): any[];
     keys(): string[];
+    getTableName(): string;
     findOne(id: string): Promise<this>;
     getCollection(): firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
     fill(data: T): this;
@@ -27,8 +23,8 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     set(key: string, value: any): this;
     get<T = any>(key: string): T;
     getData(): T & {
-        created_at: Date;
-        updated_at: Date;
+        created_at: Date | null;
+        updated_at: Date | null;
     };
     first(): Promise<this | null>;
     getAll(): Promise<Collection<this>>;
@@ -39,10 +35,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     save(data?: any): Promise<this>;
     has(key: string): boolean;
     getDates(): {
-        created_at: Date;
-        updated_at: Date;
+        created_at: Date | null;
+        updated_at: Date | null;
     };
-    addListener(success: (models: Collection<this>) => void, onError?: Function): number;
-    removeListener(index: number): this;
-    clearListeners(): this;
 }

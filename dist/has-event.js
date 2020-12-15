@@ -1,13 +1,13 @@
 import { HasRelationship } from './has-relationship';
 const events = {
-    creating: [],
-    created: [],
-    updating: [],
-    updated: [],
-    deleting: [],
-    deleted: [],
-    saving: [],
-    saved: [],
+    creating: {},
+    created: {},
+    updating: {},
+    updated: {},
+    deleting: {},
+    deleted: {},
+    saving: {},
+    saved: {},
 };
 export class HasEvent extends HasRelationship {
     creating(callback) {
@@ -35,11 +35,17 @@ export class HasEvent extends HasRelationship {
         return this.registerEvent('saved', callback);
     }
     callEvent(name) {
-        events[name].forEach((callback) => callback(this));
+        if (!(this.name in events[name])) {
+            return this;
+        }
+        const callback = events[name][this.name];
+        callback(this);
         return this;
     }
     registerEvent(name, callback) {
-        events[name].push(callback);
+        if (!(this.name in events[name])) {
+            events[name][this.name] = callback;
+        }
         return this;
     }
 }
