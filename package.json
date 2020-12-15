@@ -1,6 +1,6 @@
 {
 	"name": "@avidianity/firestore-eloquent",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "A library for creating eloquent models in firestore.",
 	"main": "dist/firestore-eloquent.js",
 	"repository": {
@@ -15,9 +15,6 @@
 	},
 	"types": "dist/firestore-eloquent.d.ts",
 	"prepublish": "tsc",
-	"publishConfig": {
-		"registry": "https://npm.pkg.github.com/"
-	},
 	"homepage": "https://github.com/avidianity/firestore-eloquent#readme",
 	"keywords": [
 		"Firestore",
