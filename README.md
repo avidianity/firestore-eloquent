@@ -55,8 +55,8 @@ export interface PostData extends ModelData {
 export class Post extends Model<PostData> {
     type = Post;
     
-    booting() {
-        this.fillable = ['title', 'description'];
+    fillable() {
+        return ['title', 'description'];
     }
 }
 ```
@@ -110,8 +110,8 @@ Example:
 export class Post extends Model<PostData> {
     type = Post;
 
-    booting() {
-        this.fillable = ['title', 'description'];
+    fillable() {
+        return ['title', 'description'];
     }
 
     // register events here
@@ -141,8 +141,8 @@ Example:
 export class Post extends Model<PostData> {
     type = Post;
     
-    booting() {
-        this.fillable = ['title', 'description'];
+    fillable() {
+        return ['title', 'description'];
     }
 
     comments() {
@@ -153,8 +153,8 @@ export class Post extends Model<PostData> {
 export class Comment extends Model<CommentData> {
     type = Comment;
     
-    booting() {
-        this.fillable = ['body'];
+    fillable() {
+        return ['body'];
     }
 
     post() {

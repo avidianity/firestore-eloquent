@@ -12,18 +12,23 @@ export type EventTypes =
 
 export type Callback<T = any> = (model: T) => void;
 
+export type Event = {
+	[key: string]: Callback;
+};
+
 const events = {
-	creating: [] as Array<Callback>,
-	created: [] as Array<Callback>,
-	updating: [] as Array<Callback>,
-	updated: [] as Array<Callback>,
-	deleting: [] as Array<Callback>,
-	deleted: [] as Array<Callback>,
-	saving: [] as Array<Callback>,
-	saved: [] as Array<Callback>,
+	creating: {} as Event,
+	created: {} as Event,
+	updating: {} as Event,
+	updated: {} as Event,
+	deleting: {} as Event,
+	deleted: {} as Event,
+	saving: {} as Event,
+	saved: {} as Event,
 };
 
 export abstract class HasEvent extends HasRelationship {
+	protected name: string;
 	creating(callback: (thisArg: this) => void) {
 		return this.registerEvent('creating', callback);
 	}
@@ -50,12 +55,18 @@ export abstract class HasEvent extends HasRelationship {
 	}
 
 	callEvent(name: EventTypes) {
-		events[name].forEach((callback) => callback(this));
+		if (!(this.name in events[name])) {
+			return this;
+		}
+		const callback = events[name][this.name];
+		callback(this);
 		return this;
 	}
 
 	registerEvent(name: EventTypes, callback: Callback<this>) {
-		events[name].push(callback);
+		if (!(this.name in events[name])) {
+			events[name][this.name] = callback;
+		}
 		return this;
 	}
 }
