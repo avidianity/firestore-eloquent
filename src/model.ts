@@ -1,7 +1,7 @@
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
 import pluralize from 'pluralize';
-import { InteractsWithRelationship, Listener, ModelData } from './contracts';
+import { InteractsWithRelationship, ModelData } from './contracts';
 import { makeCollection } from './db';
 import firebase from 'firebase';
 
