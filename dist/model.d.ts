@@ -6,7 +6,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     protected fillables: Array<string>;
     protected data: T;
     type: any;
-    constructor(data?: T);
+    constructor(data?: any);
     protected fillable(): Array<string>;
     protected booting(): void;
     protected booted(): void;
@@ -14,9 +14,13 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     values(): any[];
     keys(): string[];
     getTableName(): string;
+    toJSON(): T & {
+        created_at: Date | null;
+        updated_at: Date | null;
+    };
     findOne(id: string): Promise<this>;
     getCollection(): firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
-    fill(data: T): this;
+    fill(data: any): this;
     forceFill(data: any): this;
     count(): Promise<number>;
     delete(): Promise<void>;
@@ -33,7 +37,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     create(data?: any): Promise<this>;
     update(data?: any): Promise<this>;
     save(data?: any): Promise<this>;
-    has(key: string): boolean;
+    has<K extends keyof T>(key: K): boolean;
     getDates(): {
         created_at: Date | null;
         updated_at: Date | null;

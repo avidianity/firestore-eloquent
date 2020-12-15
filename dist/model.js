@@ -17,7 +17,6 @@ export class Model extends HasEvent {
         if (data !== undefined) {
             this.fill(data);
         }
-        makeCollection(this.name);
         this.booted();
     }
     fillable() {
@@ -36,6 +35,9 @@ export class Model extends HasEvent {
     }
     getTableName() {
         return this.name;
+    }
+    toJSON() {
+        return this.getData();
     }
     async findOne(id) {
         try {
