@@ -9,13 +9,13 @@ A library for creating eloquent models in firestore inspired heavily by Laravel'
 __npm:__
 
 ```npm
-npm install avidianity/firestore-eloquent
+npm install afirestore-eloquent
 ```
 
 __yarn:__
 
 ```yarn
-yarn add avidianity/firestore-eloquent
+yarn add firestore-eloquent
 ```
 
 ### Usage
