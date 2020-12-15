@@ -10,7 +10,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	protected data: T = {} as T;
 	type: any = Model;
 
-	constructor(data?: any) {
+	constructor(data?: Partial<T>) {
 		super();
 		this.booting();
 		this.fillables = this.fillable();
@@ -50,6 +50,66 @@ export class Model<T extends ModelData = any> extends HasEvent {
 
 	toJSON() {
 		return this.getData();
+	}
+
+	async paginate(page: number, perPage: number) {
+		try {
+			let collection = this.getCollection() as any;
+			this.queries.forEach((query) => {
+				switch (query.method) {
+					case 'where':
+						const { operator, value } = query;
+						collection = collection.where(
+							query.key,
+							operator,
+							value
+						);
+						break;
+					case 'whereIn':
+						const { values } = query;
+						values.forEach((value: any) => {
+							collection = collection.where(
+								query.key,
+								'==',
+								value
+							);
+						});
+						break;
+					case 'whereNotIn':
+						query.values.forEach((value: any) => {
+							collection = collection.where(
+								query.key,
+								'!=',
+								value
+							);
+						});
+						break;
+					case 'limit':
+						collection = collection.limit(query.amount);
+						break;
+				}
+			});
+			const snapshot = await collection
+				.limit(perPage)
+				.startAt(perPage * (page - 1))
+				.get();
+
+			const data = new Collection();
+			snapshot.forEach((document: { data: () => T; id: any }) => {
+				const body = {
+					...document.data(),
+					id: document.id,
+				};
+				const instance = new this.type();
+				instance.forceFill(body);
+				data.push(instance);
+			});
+			return data;
+		} catch (error) {
+			throw error;
+		} finally {
+			this.clearQueries();
+		}
 	}
 
 	async findOne(id: string) {
@@ -110,21 +170,21 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		return makeCollection(this.name);
 	}
 
-	fill(data: any) {
+	fill(data: Partial<T>) {
 		for (const [key, value] of Object.entries(data)) {
 			if (
 				this.fillables.find((filler) => filler === key) !== undefined ||
 				this.fillables.includes(key)
 			) {
-				this.set(key, value);
+				this.set(key as keyof T, value);
 			}
 		}
 		return this;
 	}
 
-	forceFill(data: any) {
+	forceFill(data: Partial<T>) {
 		for (const [key, value] of Object.entries(data)) {
-			this.set(key, value);
+			this.set(key as any, value);
 		}
 		return this;
 	}
@@ -181,16 +241,16 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		}
 	}
 
-	set(key: string, value: any) {
+	set<K extends keyof T>(key: K, value: any) {
 		(this.data as any)[key] = value;
 		return this;
 	}
 
-	get<T = any>(key: string): T {
+	get<K extends keyof T>(key: K) {
 		if (!(key in this.data)) {
 			return (null as unknown) as T;
 		}
-		return (this.data as any)[key];
+		return this.data[key];
 	}
 
 	getData() {
@@ -202,7 +262,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 
 	async first() {
 		try {
-			const collection = await this.getAll();
+			const collection = await this.limit(1).getAll();
 			if (collection.length > 0) {
 				return collection[0];
 			}
@@ -250,7 +310,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 				}
 			});
 			const snapshot = await collection.get();
-			const data = new Collection<any>();
+			const data = new Collection();
 			snapshot.forEach((document: any) => {
 				const body = {
 					...document.data(),
@@ -268,17 +328,13 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	}
 
 	async load(relations: Array<string>) {
-		const operations: Array<Promise<any>> = [];
-		relations.forEach((relation) => {
-			const promise = ((this as any)[
-				relation
-			]() as InteractsWithRelationship<this>).get();
-			operations.push(promise);
-		});
+		const operations = relations.map((relation) =>
+			((this as any)[relation]() as InteractsWithRelationship<this>).get()
+		);
 		const results = await Promise.all(operations);
 		results.forEach((data, index) => {
 			const name = relations[index];
-			this.set(name, data);
+			this.set(name as keyof T, data);
 		});
 		return this;
 	}
@@ -299,7 +355,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		const ref = await this.getCollection().add(newData);
 		const document = await ref.get();
 		this.forceFill({
-			...document.data(),
+			...(<T>document.data()),
 			id: document.id,
 		});
 		this.callEvent('created').callEvent('saved');
@@ -322,7 +378,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			await this.getCollection().doc(this.data.id).update(data);
 			const document = await this.getCollection().doc(this.data.id).get();
 			this.forceFill({
-				...document.data(),
+				...(<T>document.data()),
 				id: document.id,
 			});
 			this.callEvent('updated').callEvent('saved');
@@ -331,6 +387,10 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			this.set('updated_at', oldUpdatedAt);
 			throw error;
 		}
+	}
+
+	id() {
+		return this.get('id') as string;
 	}
 
 	save(data?: any): Promise<this> {
@@ -345,16 +405,16 @@ export class Model<T extends ModelData = any> extends HasEvent {
 	}
 
 	has<K extends keyof T>(key: K) {
-		return this.get(key as string) !== null;
+		return this.get(key) !== null;
 	}
 
 	getDates() {
 		return {
 			created_at: this.has('created_at')
-				? new Date(this.get('created_at').seconds)
+				? new Date((<any>this.get('created_at')).seconds)
 				: null,
 			updated_at: this.has('updated_at')
-				? new Date(this.get('updated_at').seconds)
+				? new Date((<any>this.get('updated_at')).seconds)
 				: null,
 		};
 	}

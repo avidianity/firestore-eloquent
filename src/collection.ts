@@ -2,15 +2,11 @@ import { Model } from './model';
 
 export class Collection<T extends Model = any> extends Array<T> {
 	async load(relations: Array<string>) {
-		try {
-			const results = await Promise.all(
-				this.map((item) => item.load(relations))
-			);
-			results.forEach((item, index) => this.splice(index, 1, item));
-			return this;
-		} catch (error) {
-			throw error;
-		}
+		const results = await Promise.all(
+			this.map((item) => item.load(relations))
+		);
+		results.forEach((item, index) => this.splice(index, 1, item));
+		return this;
 	}
 
 	toJSON() {
@@ -23,5 +19,29 @@ export class Collection<T extends Model = any> extends Array<T> {
 
 	async delete() {
 		await Promise.all(this.map((item) => item.delete()));
+	}
+
+	includes(model: T) {
+		const match = this.find((item) => item.get('id') === model.get('id'));
+		return match || super.includes(model) ? true : false;
+	}
+
+	indexOf(model: T) {
+		const index = this.findIndex(
+			(item) => item.get('id') === model.get('id')
+		);
+		return index;
+	}
+
+	replace(model: T, index?: number) {
+		if (index) {
+			return this.splice(index, 1, model);
+		}
+		const modelIndex = this.indexOf(model);
+		return this.splice(modelIndex, 1, model);
+	}
+
+	remove(index: number) {
+		return this.splice(index, 1);
 	}
 }
