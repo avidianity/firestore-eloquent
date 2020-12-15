@@ -39,6 +39,54 @@ export class Model extends HasEvent {
     toJSON() {
         return this.getData();
     }
+    async paginate(page, perPage) {
+        try {
+            let collection = this.getCollection();
+            this.queries.forEach((query) => {
+                switch (query.method) {
+                    case 'where':
+                        const { operator, value } = query;
+                        collection = collection.where(query.key, operator, value);
+                        break;
+                    case 'whereIn':
+                        const { values } = query;
+                        values.forEach((value) => {
+                            collection = collection.where(query.key, '==', value);
+                        });
+                        break;
+                    case 'whereNotIn':
+                        query.values.forEach((value) => {
+                            collection = collection.where(query.key, '!=', value);
+                        });
+                        break;
+                    case 'limit':
+                        collection = collection.limit(query.amount);
+                        break;
+                }
+            });
+            const snapshot = await collection
+                .limit(perPage)
+                .startAt(perPage * (page - 1))
+                .get();
+            const data = new Collection();
+            snapshot.forEach((document) => {
+                const body = {
+                    ...document.data(),
+                    id: document.id,
+                };
+                const instance = new this.type();
+                instance.forceFill(body);
+                data.push(instance);
+            });
+            return data;
+        }
+        catch (error) {
+            throw error;
+        }
+        finally {
+            this.clearQueries();
+        }
+    }
     async findOne(id) {
         try {
             let collection = this.getCollection();
@@ -157,7 +205,7 @@ export class Model extends HasEvent {
     }
     async first() {
         try {
-            const collection = await this.getAll();
+            const collection = await this.limit(1).getAll();
             if (collection.length > 0) {
                 return collection[0];
             }
@@ -211,11 +259,7 @@ export class Model extends HasEvent {
         }
     }
     async load(relations) {
-        const operations = [];
-        relations.forEach((relation) => {
-            const promise = this[relation]().get();
-            operations.push(promise);
-        });
+        const operations = relations.map((relation) => this[relation]().get());
         const results = await Promise.all(operations);
         results.forEach((data, index) => {
             const name = relations[index];
@@ -267,6 +311,9 @@ export class Model extends HasEvent {
             this.set('updated_at', oldUpdatedAt);
             throw error;
         }
+    }
+    id() {
+        return this.get('id');
     }
     save(data) {
         if (data) {

@@ -4,4 +4,8 @@ export declare class Collection<T extends Model = any> extends Array<T> {
     toJSON(): any[];
     save(): Promise<T[]>;
     delete(): Promise<void>;
+    includes(model: T): boolean;
+    indexOf(model: T): number;
+    replace(model: T, index?: number): T[];
+    remove(index: number): T[];
 }
