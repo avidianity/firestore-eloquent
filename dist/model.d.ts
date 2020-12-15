@@ -33,7 +33,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     };
     first(): Promise<this | null>;
     getAll(): Promise<Collection<this>>;
-    load(...relations: Array<string>): Promise<this>;
+    load(relations: Array<string>): Promise<this>;
     all(): Promise<Collection<this>>;
     create(data?: T): Promise<this>;
     update(data?: Partial<T>): Promise<this>;

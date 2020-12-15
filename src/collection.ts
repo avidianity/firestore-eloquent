@@ -1,9 +1,9 @@
 import { Model } from './model';
 
 export class Collection<T extends Model = any> extends Array<T> {
-	async load(...relations: Array<string>) {
+	async load(relations: Array<string>) {
 		const results = await Promise.all(
-			this.map((item) => item.load(...relations))
+			this.map((item) => item.load(relations))
 		);
 		results.forEach((item, index) => this.splice(index, 1, item));
 		return this;

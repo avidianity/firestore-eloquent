@@ -327,7 +327,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		}
 	}
 
-	async load(...relations: Array<string>) {
+	async load(relations: Array<string>) {
 		const operations = relations.map((relation) =>
 			((this as any)[relation]() as InteractsWithRelationship<this>).get()
 		);

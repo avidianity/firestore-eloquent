@@ -258,7 +258,7 @@ export class Model extends HasEvent {
             throw error;
         }
     }
-    async load(...relations) {
+    async load(relations) {
         const operations = relations.map((relation) => this[relation]().get());
         const results = await Promise.all(operations);
         results.forEach((data, index) => {
