@@ -7,7 +7,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     protected data: T;
     type: any;
     constructor(data?: Partial<T>);
-    protected fillable(): Array<keyof T>;
+    protected fillable<K extends T>(): Array<keyof K>;
     protected booting(): void;
     protected booted(): void;
     entries(): [string, any][];

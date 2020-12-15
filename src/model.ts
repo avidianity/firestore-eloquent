@@ -24,7 +24,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		this.booted();
 	}
 
-	protected fillable(): Array<keyof T> {
+	protected fillable<K extends T>(): Array<keyof K> {
 		return [];
 	}
 
