@@ -177,6 +177,12 @@ const comment = await post.comments().create(data);
 const comments = await post.comments().getAll();
 ```
 
+### Contributing
+
+I would really appreciate it if someone can help me create and improve the docs.
+I made this on short notice for my personal use and I will try to update this package
+as frequent as possible.
+
 ### License
 
 This library is open-sourced software licensed under the [MIT license](LICENSE.md).

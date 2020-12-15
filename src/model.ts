@@ -241,8 +241,8 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		}
 	}
 
-	set<K extends keyof T>(key: K, value: any) {
-		(this.data as any)[key] = value;
+	set<K extends keyof T>(key: K, value: T[K]) {
+		this.data[key] = value;
 		return this;
 	}
 
@@ -334,7 +334,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		const results = await Promise.all(operations);
 		results.forEach((data, index) => {
 			const name = relations[index];
-			this.set(name as keyof T, data);
+			this.set(name as keyof T, <any>data);
 		});
 		return this;
 	}
@@ -349,8 +349,14 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		}
 		const newData = { ...this.data };
 		this.fill(newData);
-		this.set('created_at', firebase.firestore.FieldValue.serverTimestamp());
-		this.set('updated_at', firebase.firestore.FieldValue.serverTimestamp());
+		this.set(
+			'created_at',
+			<any>firebase.firestore.FieldValue.serverTimestamp()
+		);
+		this.set(
+			'updated_at',
+			<any>firebase.firestore.FieldValue.serverTimestamp()
+		);
 		this.callEvent('creating').callEvent('saving');
 		const ref = await this.getCollection().add(newData);
 		const document = await ref.get();
@@ -371,7 +377,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 			this.callEvent('updating').callEvent('saving');
 			this.set(
 				'updated_at',
-				firebase.firestore.FieldValue.serverTimestamp()
+				<any>firebase.firestore.FieldValue.serverTimestamp()
 			);
 			const data = { ...this.data } as any;
 			delete data.id;
