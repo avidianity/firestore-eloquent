@@ -44,7 +44,7 @@ Using and creating models should be similar to using Laravel Eloquent Models.
 Note: The Authenticatable class for user models is still under development.
 
 ```typescript
-import { Model, ModelData } from '@avidianity/firestore-eloquent';
+import { Model, ModelData } from 'firestore-eloquent';
 
 // Optional
 export interface PostData extends ModelData {
