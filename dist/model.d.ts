@@ -26,7 +26,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent {
     count(): Promise<number>;
     delete(): Promise<void>;
     set<K extends keyof T>(key: K, value: any): this;
-    get<K extends keyof T>(key: K): T | T[K];
+    get<K extends keyof T>(key: K): T[K];
     getData(): T & {
         created_at: Date | null;
         updated_at: Date | null;
