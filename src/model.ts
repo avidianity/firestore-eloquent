@@ -6,7 +6,7 @@ import { makeCollection } from './db';
 import firebase from 'firebase';
 
 export class Model<T extends ModelData = any> extends HasEvent {
-	protected fillables: Array<string>;
+	protected fillables: Array<keyof T>;
 	protected data: T = {} as T;
 	type: any = Model;
 
@@ -24,7 +24,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		this.booted();
 	}
 
-	protected fillable(): Array<string> {
+	protected fillable(): Array<keyof T> {
 		return [];
 	}
 
@@ -174,7 +174,7 @@ export class Model<T extends ModelData = any> extends HasEvent {
 		for (const [key, value] of Object.entries(data)) {
 			if (
 				this.fillables.find((filler) => filler === key) !== undefined ||
-				this.fillables.includes(key)
+				this.fillables.includes(key as keyof T)
 			) {
 				this.set(key as keyof T, value);
 			}

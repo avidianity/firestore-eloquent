@@ -3,11 +3,11 @@ import { HasEvent } from './has-event';
 import { ModelData } from './contracts';
 import firebase from 'firebase';
 export declare class Model<T extends ModelData = any> extends HasEvent {
-    protected fillables: Array<string>;
+    protected fillables: Array<keyof T>;
     protected data: T;
     type: any;
     constructor(data?: Partial<T>);
-    protected fillable(): Array<string>;
+    protected fillable(): Array<keyof T>;
     protected booting(): void;
     protected booted(): void;
     entries(): [string, any][];
