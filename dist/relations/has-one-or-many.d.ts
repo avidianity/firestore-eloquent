@@ -7,7 +7,7 @@ export declare abstract class HasOneOrMany<T extends Model, D extends ModelData>
     protected name: string;
     constructor(relation: T, parent: Model, name: string);
     get(): Promise<any>;
-    create(data: any): Promise<T>;
+    create(data: any): Promise<any>;
     update(data: any): Promise<T>;
     save(instance?: T): Promise<T>;
     first(): Promise<T | null>;

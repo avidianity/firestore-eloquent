@@ -22,31 +22,27 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData>
 		return new Promise<T | Collection<T> | any>(() => {});
 	}
 
-	create(data: any) {
-		return new Promise<T>(async (resolve, reject) => {
-			try {
-				data[this.getForeignKey()] = this.parent.get('id');
-				const model = new this.relation.type();
-				model.fill(data);
-				await model.save();
-				return resolve(model);
-			} catch (error) {
-				reject(error);
-			}
-		});
+	async create(data: any) {
+		try {
+			data[this.getForeignKey()] = this.parent.get('id');
+			const model = new this.relation.type();
+			model.fill(data);
+			await model.save();
+			return model;
+		} catch (error) {
+			throw error;
+		}
 	}
 
-	update(data: any) {
-		return new Promise<T>(async (resolve, reject) => {
-			try {
-				data[this.getForeignKey()] = this.parent.get('id');
-				this.relation.fill(data);
-				await this.relation.save();
-				return resolve(this.relation);
-			} catch (error) {
-				reject(error);
-			}
-		});
+	async update(data: any) {
+		try {
+			data[this.getForeignKey()] = this.parent.get('id');
+			this.relation.fill(data);
+			await this.relation.save();
+			return this.relation;
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	save(instance?: T) {
@@ -58,52 +54,48 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData>
 			: relation.update(data);
 	}
 
-	first() {
-		return new Promise<T | null>(async (resolve, reject) => {
-			try {
-				this.queries.forEach((query) => {
-					switch (query.method) {
-						case 'where':
-							const { operator, value } = query;
-							this.relation.where(query.key, operator, value);
-							break;
-						case 'whereIn':
-							this.relation.whereIn(query.key, query.values);
-							break;
-						case 'whereNotIn':
-							this.relation.whereNotIn(query.key, query.values);
-							break;
-						case 'limit':
-							this.relation.limit(query.amount);
-							break;
-					}
-				});
-				const child = await this.relation
-					.where(this.getForeignKey(), '==', this.parent.get('id'))
-					.first();
-				this.parent.set(this.name, child);
-				return resolve((child as unknown) as T | null);
-			} catch (error) {
-				return reject(error);
-			} finally {
-				this.clearQueries();
-			}
-		});
+	async first() {
+		try {
+			this.queries.forEach((query) => {
+				switch (query.method) {
+					case 'where':
+						const { operator, value } = query;
+						this.relation.where(query.key, operator, value);
+						break;
+					case 'whereIn':
+						this.relation.whereIn(query.key, query.values);
+						break;
+					case 'whereNotIn':
+						this.relation.whereNotIn(query.key, query.values);
+						break;
+					case 'limit':
+						this.relation.limit(query.amount);
+						break;
+				}
+			});
+			const child = await this.relation
+				.where(this.getForeignKey(), '==', this.parent.get('id'))
+				.first();
+			this.parent.set(this.name, child);
+			return child;
+		} catch (error) {
+			throw error;
+		} finally {
+			this.clearQueries();
+		}
 	}
 
-	delete() {
-		return new Promise<void>(async (resolve, reject) => {
-			try {
-				const modelsOrModel = await this.get();
-				if (modelsOrModel) {
-					await modelsOrModel.delete();
-				}
-				this.parent.set(this.name, null);
-				return resolve();
-			} catch (error) {
-				return reject(error);
+	async delete() {
+		try {
+			const modelsOrModel = await this.get();
+			if (modelsOrModel) {
+				await modelsOrModel.delete();
 			}
-		});
+			this.parent.unset(this.name);
+			return;
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	protected getForeignKey() {
