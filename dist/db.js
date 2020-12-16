@@ -13,8 +13,11 @@ export function makeCollection(name) {
 export const listened = [];
 export function listen(model) {
     const name = new model().getTableName();
-    if (!(name in collections) || listened.includes(name)) {
+    if (listened.includes(name)) {
         return;
+    }
+    if (!(name in collections)) {
+        makeCollection(name);
     }
     const collection = collections[name];
     collection.onSnapshot((snapshot) => {

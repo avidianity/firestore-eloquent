@@ -27,8 +27,11 @@ export const listened: Array<string> = [];
 
 export function listen<T extends Model>(model: { new (): T }) {
 	const name = new model().getTableName();
-	if (!(name in collections) || listened.includes(name)) {
+	if (listened.includes(name)) {
 		return;
+	}
+	if (!(name in collections)) {
+		makeCollection(name);
 	}
 	const collection = collections[name];
 	collection.onSnapshot(
