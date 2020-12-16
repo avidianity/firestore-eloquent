@@ -422,10 +422,10 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	getDates() {
 		return {
 			created_at: this.has('created_at')
-				? new Date((<any>this.get('created_at')).seconds)
+				? new Date((<any>this.get('created_at')).seconds * 1000)
 				: null,
 			updated_at: this.has('updated_at')
-				? new Date((<any>this.get('updated_at')).seconds)
+				? new Date((<any>this.get('updated_at')).seconds * 1000)
 				: null,
 		};
 	}
