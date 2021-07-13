@@ -1,15 +1,7 @@
 import { ModelData } from './contracts';
 import { HasRelationship } from './has-relationship';
 
-export type EventTypes =
-	| 'creating'
-	| 'created'
-	| 'updating'
-	| 'updated'
-	| 'deleting'
-	| 'deleted'
-	| 'saving'
-	| 'saved';
+export type EventTypes = 'creating' | 'created' | 'updating' | 'updated' | 'deleting' | 'deleted' | 'saving' | 'saved';
 
 export type Callback<T = any> = (model: T) => void;
 
@@ -29,7 +21,7 @@ const events = {
 };
 
 export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
-	protected name: string;
+	protected name = '';
 	creating(callback: (thisArg: this) => void) {
 		return this.registerEvent('creating', callback);
 	}
