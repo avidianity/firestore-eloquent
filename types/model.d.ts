@@ -14,10 +14,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     values(): any[];
     keys(): string[];
     getTableName(): string;
-    toJSON(): T & {
-        created_at: Date | null;
-        updated_at: Date | null;
-    };
+    toJSON(): T;
     paginate(page: number, perPage: number): Promise<Collection<any>>;
     findOne(id: string): Promise<this>;
     getCollection(): firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
@@ -27,10 +24,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     delete(): Promise<void>;
     set<K extends keyof T>(key: K, value: T[K]): this;
     get<K extends keyof T>(key: K): T[K];
-    getData(): T & {
-        created_at: Date | null;
-        updated_at: Date | null;
-    };
+    getData(): T;
     first(): Promise<this | null>;
     getAll(): Promise<Collection<this>>;
     load(relations: Array<string>): Promise<this>;
@@ -41,8 +35,4 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     save(data?: Partial<T>): Promise<this>;
     unset<K extends keyof T>(key: K): this;
     has<K extends keyof T>(key: K): boolean;
-    getDates(): {
-        created_at: Date | null;
-        updated_at: Date | null;
-    };
 }

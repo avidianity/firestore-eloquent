@@ -215,10 +215,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	getData() {
-		return {
-			...this.data,
-			...this.getDates(),
-		};
+		return { ...this.data };
 	}
 
 	async first() {
@@ -295,8 +292,8 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			this.fill(data);
 		}
 
-		this.set('created_at', <any>firebase.firestore.FieldValue.serverTimestamp());
-		this.set('updated_at', <any>firebase.firestore.FieldValue.serverTimestamp());
+		this.set('created_at', new Date().toJSON());
+		this.set('updated_at', new Date().toJSON());
 
 		const newData = { ...this.data };
 
@@ -319,7 +316,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		const oldUpdatedAt = this.get('updated_at');
 		try {
 			this.callEvent('updating').callEvent('saving');
-			this.set('updated_at', <any>firebase.firestore.FieldValue.serverTimestamp());
+			this.set('updated_at', new Date().toJSON());
 			const data = { ...this.data } as any;
 			delete data.id;
 			await this.getCollection().doc(this.data.id).update(data);
@@ -354,12 +351,5 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 
 	has<K extends keyof T>(key: K) {
 		return this.get(key) !== null;
-	}
-
-	getDates() {
-		return {
-			created_at: this.has('created_at') ? new Date((<any>this.get('created_at')).seconds * 1000) : null,
-			updated_at: this.has('updated_at') ? new Date((<any>this.get('updated_at')).seconds * 1000) : null,
-		};
 	}
 }

@@ -3,14 +3,8 @@ import { Model } from './model';
 
 export interface ModelData {
 	id?: string;
-	created_at?: {
-		nanoseconds: number;
-		seconds: number;
-	};
-	updated_at?: {
-		nanoseconds: number;
-		seconds: number;
-	};
+	created_at?: string;
+	updated_at?: string;
 }
 
 export interface InteractsWithRelationship<T extends Model> {
