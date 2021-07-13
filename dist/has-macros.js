@@ -1,7 +1,5 @@
 export class HasMacros {
-    constructor() {
-        this.macros = [];
-    }
+    macros = [];
     macro(key, callable) {
         const macro = this.macros.find((macro) => macro.key === key);
         if (macro) {

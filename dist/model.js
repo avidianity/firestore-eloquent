@@ -4,10 +4,11 @@ import pluralize from 'pluralize';
 import { makeCollection } from './db';
 import firebase from 'firebase';
 export class Model extends HasEvent {
+    fillables;
+    data = {};
+    type = Model;
     constructor(data) {
         super();
-        this.data = {};
-        this.type = Model;
         this.booting();
         this.fillables = this.fillable();
         this.name = pluralize(this.constructor.name.toLowerCase());

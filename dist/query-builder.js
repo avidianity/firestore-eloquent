@@ -1,9 +1,6 @@
 import { HasMacros } from './has-macros';
 export class QueryBuilder extends HasMacros {
-    constructor() {
-        super(...arguments);
-        this.queries = [];
-    }
+    queries = [];
     clearQueries() {
         this.queries = [];
         return this;

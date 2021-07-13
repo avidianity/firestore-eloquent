@@ -1,5 +1,8 @@
 import { QueryBuilder } from '../query-builder';
 export class BelongsTo extends QueryBuilder {
+    child;
+    parent;
+    name;
     constructor(child, parent, name) {
         super();
         this.child = child;

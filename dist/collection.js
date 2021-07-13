@@ -31,4 +31,19 @@ export class Collection extends Array {
     remove(index) {
         return this.splice(index, 1);
     }
+    get(item) {
+        if (typeof item === 'string') {
+            return this.find((i) => i.get('id') === item);
+        }
+        return this.find((i) => i.get('id') === item.get('id'));
+    }
+    set(item) {
+        if (this.includes(item)) {
+            this.replace(item, this.indexOf(item));
+        }
+        else {
+            this.push(item);
+        }
+        return this;
+    }
 }

@@ -1,5 +1,8 @@
 import { QueryBuilder } from '../query-builder';
 export class HasOneOrMany extends QueryBuilder {
+    relation;
+    parent;
+    name;
     constructor(relation, parent, name) {
         super();
         this.relation = relation;

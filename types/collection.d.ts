@@ -8,4 +8,6 @@ export declare class Collection<T extends Model = any> extends Array<T> {
     indexOf(model: T): number;
     replace(model: T, index?: number): T[];
     remove(index: number): T[];
+    get(item: string | T): T | undefined;
+    set(item: T): this;
 }
