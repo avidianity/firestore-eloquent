@@ -59,29 +59,17 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 				switch (query.method) {
 					case 'where':
 						const { operator, value } = query;
-						collection = collection.where(
-							query.key,
-							operator,
-							value
-						);
+						collection = collection.where(query.key, operator, value);
 						break;
 					case 'whereIn':
 						const { values } = query;
 						values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'==',
-								value
-							);
+							collection = collection.where(query.key, '==', value);
 						});
 						break;
 					case 'whereNotIn':
 						query.values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'!=',
-								value
-							);
+							collection = collection.where(query.key, '!=', value);
 						});
 						break;
 					case 'limit':
@@ -119,29 +107,17 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 				switch (query.method) {
 					case 'where':
 						const { operator, value } = query;
-						collection = collection.where(
-							query.key,
-							operator,
-							value
-						);
+						collection = collection.where(query.key, operator, value);
 						break;
 					case 'whereIn':
 						const { values } = query;
 						values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'==',
-								value
-							);
+							collection = collection.where(query.key, '==', value);
 						});
 						break;
 					case 'whereNotIn':
 						query.values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'!=',
-								value
-							);
+							collection = collection.where(query.key, '!=', value);
 						});
 						break;
 					case 'limit':
@@ -172,10 +148,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 
 	fill(data: Partial<T>) {
 		for (const [key, value] of Object.entries(data)) {
-			if (
-				this.fillables.find((filler) => filler === key) !== undefined ||
-				this.fillables.includes(key)
-			) {
+			if (this.fillables.find((filler) => filler === key) !== undefined || this.fillables.includes(key)) {
 				this.set(key as keyof T, value);
 			}
 		}
@@ -202,29 +175,17 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 				switch (query.method) {
 					case 'where':
 						const { operator, value } = query;
-						collection = collection.where(
-							query.key,
-							operator,
-							value
-						);
+						collection = collection.where(query.key, operator, value);
 						break;
 					case 'whereIn':
 						const { values } = query;
 						values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'==',
-								value
-							);
+							collection = collection.where(query.key, '==', value);
 						});
 						break;
 					case 'whereNotIn':
 						query.values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'!=',
-								value
-							);
+							collection = collection.where(query.key, '!=', value);
 						});
 						break;
 					case 'limit':
@@ -248,7 +209,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 
 	get<K extends keyof T>(key: K) {
 		if (!(key in this.data)) {
-			return (null as unknown) as T[K];
+			return null as unknown as T[K];
 		}
 		return this.data[key];
 	}
@@ -279,29 +240,17 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 				switch (query.method) {
 					case 'where':
 						const { operator, value } = query;
-						collection = collection.where(
-							query.key,
-							operator,
-							value
-						);
+						collection = collection.where(query.key, operator, value);
 						break;
 					case 'whereIn':
 						const { values } = query;
 						values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'==',
-								value
-							);
+							collection = collection.where(query.key, '==', value);
 						});
 						break;
 					case 'whereNotIn':
 						query.values.forEach((value: any) => {
-							collection = collection.where(
-								query.key,
-								'!=',
-								value
-							);
+							collection = collection.where(query.key, '!=', value);
 						});
 						break;
 					case 'limit':
@@ -328,9 +277,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	async load(relations: Array<string>) {
-		const operations = relations.map((relation) =>
-			((this as any)[relation]() as InteractsWithRelationship<this>).get()
-		);
+		const operations = relations.map((relation) => ((this as any)[relation]() as InteractsWithRelationship<this>).get());
 		const results = await Promise.all(operations);
 		results.forEach((data, index) => {
 			const name = relations[index];
@@ -347,16 +294,12 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		if (data) {
 			this.fill(data);
 		}
+
+		this.set('created_at', <any>firebase.firestore.FieldValue.serverTimestamp());
+		this.set('updated_at', <any>firebase.firestore.FieldValue.serverTimestamp());
+
 		const newData = { ...this.data };
-		this.fill(newData);
-		this.set(
-			'created_at',
-			<any>firebase.firestore.FieldValue.serverTimestamp()
-		);
-		this.set(
-			'updated_at',
-			<any>firebase.firestore.FieldValue.serverTimestamp()
-		);
+
 		this.callEvent('creating').callEvent('saving');
 		const ref = await this.getCollection().add(newData);
 		const document = await ref.get();
@@ -364,6 +307,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			...(<T>document.data()),
 			id: document.id,
 		});
+		await this.getCollection().doc(document.id).update(this.data);
 		this.callEvent('created').callEvent('saved');
 		return this;
 	}
@@ -375,10 +319,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		const oldUpdatedAt = this.get('updated_at');
 		try {
 			this.callEvent('updating').callEvent('saving');
-			this.set(
-				'updated_at',
-				<any>firebase.firestore.FieldValue.serverTimestamp()
-			);
+			this.set('updated_at', <any>firebase.firestore.FieldValue.serverTimestamp());
 			const data = { ...this.data } as any;
 			delete data.id;
 			await this.getCollection().doc(this.data.id).update(data);
@@ -403,11 +344,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		if (data) {
 			this.fill(data);
 		}
-		return !('id' in this.data) ||
-			!this.data.id ||
-			this.data.id.length === 0
-			? this.create()
-			: this.update();
+		return !('id' in this.data) || !this.data.id || this.data.id.length === 0 ? this.create() : this.update();
 	}
 
 	unset<K extends keyof T>(key: K) {
@@ -421,12 +358,8 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 
 	getDates() {
 		return {
-			created_at: this.has('created_at')
-				? new Date((<any>this.get('created_at')).seconds * 1000)
-				: null,
-			updated_at: this.has('updated_at')
-				? new Date((<any>this.get('updated_at')).seconds * 1000)
-				: null,
+			created_at: this.has('created_at') ? new Date((<any>this.get('created_at')).seconds * 1000) : null,
+			updated_at: this.has('updated_at') ? new Date((<any>this.get('updated_at')).seconds * 1000) : null,
 		};
 	}
 }
