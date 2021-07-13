@@ -1,8 +1,8 @@
 {
 	"name": "firestore-eloquent",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "A library for creating eloquent models in firestore.",
-	"main": "types/firestore-eloquent.js",
+	"main": "dist/firestore-eloquent.js",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/avidianity/firestore-eloquent.git"
@@ -13,7 +13,7 @@
 	"scripts": {
 		"build": "tsc"
 	},
-	"types": "dist/firestore-eloquent.d.ts",
+	"types": "types/firestore-eloquent.d.ts",
 	"prepublish": "tsc",
 	"homepage": "https://github.com/avidianity/firestore-eloquent#readme",
 	"keywords": [
