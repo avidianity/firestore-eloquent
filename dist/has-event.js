@@ -10,7 +10,10 @@ const events = {
 	saved: {},
 };
 export class HasEvent extends HasRelationship {
-	name = '';
+	constructor() {
+		super();
+		this.name = '';
+	}
 	creating(callback) {
 		return this.registerEvent('creating', callback);
 	}

@@ -21,7 +21,13 @@ const events = {
 };
 
 export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
-	protected name = '';
+	protected name: string;
+
+	constructor() {
+		super();
+		this.name = '';
+	}
+
 	creating(callback: (thisArg: this) => void) {
 		return this.registerEvent('creating', callback);
 	}
