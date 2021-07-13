@@ -3,9 +3,7 @@ import { InteractsWithRelationship, ModelData } from '../contracts';
 import { Model } from '../model';
 import { QueryBuilder } from '../query-builder';
 
-export abstract class HasOneOrMany<T extends Model, D extends ModelData>
-	extends QueryBuilder<D>
-	implements InteractsWithRelationship<T> {
+export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends QueryBuilder<D> implements InteractsWithRelationship<T> {
 	protected relation: T;
 	protected parent: Model<any>;
 	protected name: string;
@@ -24,9 +22,9 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData>
 
 	async create(data: any) {
 		try {
-			data[this.getForeignKey()] = this.parent.get('id');
 			const model = new this.relation.type();
 			model.fill(data);
+			model.set(this.getForeignKey(), this.parent.get('id'));
 			await model.save();
 			return model;
 		} catch (error) {
@@ -36,8 +34,8 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData>
 
 	async update(data: any) {
 		try {
-			data[this.getForeignKey()] = this.parent.get('id');
 			this.relation.fill(data);
+			this.relation.set(this.getForeignKey(), this.parent.get('id'));
 			await this.relation.save();
 			return this.relation;
 		} catch (error) {
@@ -46,12 +44,10 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData>
 	}
 
 	save(instance?: T) {
-		let relation = instance || this.relation;
+		const relation = instance || this.relation;
 		const data = relation.getData();
-		data[this.getForeignKey()] = this.parent.get('id');
-		return relation.get('id') === null
-			? relation.create(data)
-			: relation.update(data);
+		relation.set(this.getForeignKey(), this.parent.get('id'));
+		return relation.get('id') === null ? relation.create(data) : relation.update(data);
 	}
 
 	async first() {
@@ -73,9 +69,7 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData>
 						break;
 				}
 			});
-			const child = await this.relation
-				.where(this.getForeignKey(), '==', this.parent.get('id'))
-				.first();
+			const child = await this.relation.where(this.getForeignKey(), '==', this.parent.get('id')).first();
 			this.parent.set(this.name, child);
 			return child;
 		} catch (error) {
