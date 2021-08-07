@@ -220,7 +220,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		return value;
 	}
 
-	getData() {
+	getData(): T {
 		const data: any = {};
 
 		for (const key in this.data) {

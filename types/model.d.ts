@@ -10,11 +10,11 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     protected fillable(): Array<string>;
     protected booting(): void;
     protected booted(): void;
-    entries(): [string, unknown][];
-    values(): unknown[];
+    entries(): [string, any][];
+    values(): any[];
     keys(): string[];
     getTableName(): string;
-    toJSON(): any;
+    toJSON(): T;
     paginate(page: number, perPage: number): Promise<Collection<any>>;
     findOne(id: string): Promise<this>;
     getCollection(): firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
@@ -24,7 +24,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     delete(): Promise<void>;
     set<K extends keyof T>(key: K, value: T[K]): this;
     get<K extends keyof T>(key: K): any;
-    getData(): any;
+    getData(): T;
     first(): Promise<this | null>;
     getAll(): Promise<Collection<this>>;
     load(relations: Array<string>): Promise<this>;
