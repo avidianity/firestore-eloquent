@@ -211,11 +211,29 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		if (!(key in this.data)) {
 			return null as unknown as T[K];
 		}
-		return this.data[key];
+		const value = this.data[key];
+
+		if (value instanceof Model) {
+			return value.getData();
+		}
+
+		return value;
 	}
 
 	getData() {
-		return { ...this.data };
+		const data: any = {};
+
+		for (const key in this.data) {
+			const value = this.data[key];
+
+			if (value instanceof Model) {
+				data[key] = value.getData();
+			} else {
+				data[key] = value;
+			}
+		}
+
+		return data;
 	}
 
 	async first() {
