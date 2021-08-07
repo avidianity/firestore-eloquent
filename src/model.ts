@@ -207,7 +207,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		return this;
 	}
 
-	get<K extends keyof T>(key: K) {
+	get<K extends keyof T>(key: K): T[K] {
 		if (!(key in this.data)) {
 			return null as unknown as T[K];
 		}

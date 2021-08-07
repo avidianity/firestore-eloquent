@@ -23,7 +23,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     count(): Promise<number>;
     delete(): Promise<void>;
     set<K extends keyof T>(key: K, value: T[K]): this;
-    get<K extends keyof T>(key: K): any;
+    get<K extends keyof T>(key: K): T[K];
     getData(): T;
     first(): Promise<this | null>;
     getAll(): Promise<Collection<this>>;
