@@ -3,7 +3,6 @@ import { HasEvent } from './has-event';
 import pluralize from 'pluralize';
 import { InteractsWithRelationship, ModelData } from './contracts';
 import { makeCollection } from './db';
-import firebase from 'firebase';
 
 export class Model<T extends ModelData = any> extends HasEvent<T> {
 	protected fillables: Array<string>;
@@ -195,10 +194,12 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			});
 			await collection.doc(this.data.id).delete();
 			this.callEvent('deleted');
-			this.clearQueries();
+
 			return;
 		} catch (error) {
 			throw error;
+		} finally {
+			this.clearQueries();
 		}
 	}
 
@@ -237,15 +238,13 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	async first() {
-		try {
-			const collection = await this.limit(1).getAll();
-			if (collection.length > 0) {
-				return collection[0];
-			}
-			return null;
-		} catch (error) {
-			throw error;
+		const collection = await this.limit(1).getAll();
+
+		if (collection.length > 0) {
+			return collection[0];
 		}
+
+		return null;
 	}
 
 	async getAll(): Promise<Collection<this>> {
@@ -275,6 +274,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			});
 			const snapshot = await collection.get();
 			const data = new Collection();
+
 			snapshot.forEach((document: any) => {
 				const body = {
 					...document.data(),
@@ -284,11 +284,27 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 				instance.forceFill(body);
 				data.push(instance);
 			});
-			this.clearQueries();
+
 			return data;
 		} catch (error) {
 			throw error;
+		} finally {
+			this.clearQueries();
 		}
+	}
+
+	withoutRelations(): T {
+		const data: any = {};
+
+		for (const key in this.data) {
+			const value = this.data[key];
+
+			if (value instanceof Model === false) {
+				data[key] = value;
+			}
+		}
+
+		return data;
 	}
 
 	async load(relations: Array<string>) {
@@ -313,16 +329,15 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		this.set('created_at', new Date().toJSON());
 		this.set('updated_at', new Date().toJSON());
 
-		const newData = { ...this.data };
-
 		this.callEvent('creating').callEvent('saving');
-		const ref = await this.getCollection().add(newData);
-		const document = await ref.get();
-		this.forceFill({
-			...(<T>document.data()),
-			id: document.id,
+
+		const ref = this.getCollection().doc();
+
+		await ref.set({
+			...this.data,
+			id: ref.id,
 		});
-		await this.getCollection().doc(document.id).update(this.data);
+
 		this.callEvent('created').callEvent('saved');
 		return this;
 	}
@@ -335,14 +350,13 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		try {
 			this.callEvent('updating').callEvent('saving');
 			this.set('updated_at', new Date().toJSON());
-			const data = { ...this.data } as any;
-			delete data.id;
-			await this.getCollection().doc(this.data.id).update(data);
-			const document = await this.getCollection().doc(this.data.id).get();
-			this.forceFill({
-				...(<T>document.data()),
-				id: document.id,
-			});
+
+			await this.getCollection()
+				.doc(this.data.id)
+				.set({
+					...this.withoutRelations(),
+				});
+
 			this.callEvent('updated').callEvent('saved');
 			return this;
 		} catch (error) {
@@ -355,7 +369,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		return this.get('id') as string;
 	}
 
-	save(data?: Partial<T>): Promise<this> {
+	save(data?: Partial<T>) {
 		if (data) {
 			this.fill(data);
 		}

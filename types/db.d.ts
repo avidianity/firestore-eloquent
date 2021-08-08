@@ -17,9 +17,9 @@ export declare function listen<T extends Model>(model: {
 export declare function addListener<T extends Model>(collection: {
     new (): T;
 }, success: (models: Collection<T>) => void, onError?: Function): number;
-export declare function removeListener<T extends Model>(collection: {
+export declare function removeListener<T extends Model>(model: {
     new (): T;
 }, index: number): void;
-export declare function clearListeners<T extends Model>(collection: {
+export declare function clearListeners<T extends Model>(model: {
     new (): T;
 }): void;

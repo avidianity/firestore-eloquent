@@ -7,9 +7,7 @@ import { Model } from './model';
 const firestore = firebase.firestore();
 
 export const collections: {
-	[
-		key: string
-	]: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
+	[key: string]: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
 } = {};
 
 export const listeners: {
@@ -66,11 +64,7 @@ export function listen<T extends Model>(model: { new (): T }) {
 	listened.push(name);
 }
 
-export function addListener<T extends Model>(
-	collection: { new (): T },
-	success: (models: Collection<T>) => void,
-	onError?: Function
-) {
+export function addListener<T extends Model>(collection: { new (): T }, success: (models: Collection<T>) => void, onError?: Function) {
 	const name = new collection().getTableName();
 	if (!(name in listeners)) {
 		listeners[name] = [];
@@ -83,19 +77,16 @@ export function addListener<T extends Model>(
 	);
 }
 
-export function removeListener<T extends Model>(
-	collection: { new (): T },
-	index: number
-) {
-	const name = new collection().getTableName();
+export function removeListener<T extends Model>(model: { new (): T }, index: number) {
+	const name = new model().getTableName();
 	if (!(name in listeners)) {
 		return;
 	}
 	listeners[name].splice(index, 1, null);
 }
 
-export function clearListeners<T extends Model>(collection: { new (): T }) {
-	const name = new collection().getTableName();
+export function clearListeners<T extends Model>(model: { new (): T }) {
+	const name = new model().getTableName();
 	if (!(name in listeners)) {
 		return;
 	}

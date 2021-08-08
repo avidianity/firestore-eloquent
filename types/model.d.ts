@@ -1,7 +1,6 @@
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
 import { ModelData } from './contracts';
-import firebase from 'firebase';
 export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     protected fillables: Array<string>;
     protected data: T;
@@ -17,7 +16,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     toJSON(): T;
     paginate(page: number, perPage: number): Promise<Collection<any>>;
     findOne(id: string): Promise<this>;
-    getCollection(): firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
+    getCollection(): import("firebase").default.firestore.CollectionReference<import("firebase").default.firestore.DocumentData>;
     fill(data: Partial<T>): this;
     forceFill(data: Partial<T>): this;
     count(): Promise<number>;
@@ -27,6 +26,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     getData(): T;
     first(): Promise<this | null>;
     getAll(): Promise<Collection<this>>;
+    withoutRelations(): T;
     load(relations: Array<string>): Promise<this>;
     all(): Promise<Collection<this>>;
     create(data?: T): Promise<this>;
