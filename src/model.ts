@@ -229,6 +229,15 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 
 			if (value instanceof Model) {
 				data[key] = value.getData();
+			} else if (value instanceof Collection) {
+				data[key] = value.toJSON();
+			} else if (Array.isArray(value)) {
+				data[key] = value.map((item) => {
+					if (item instanceof Model) {
+						return item.getData();
+					}
+					return item;
+				});
 			} else {
 				data[key] = value;
 			}
