@@ -58,4 +58,8 @@ export class Collection<T extends Model = any> extends Array<T> {
 
 		return this;
 	}
+
+	toArray() {
+		return Array.from(this);
+	}
 }

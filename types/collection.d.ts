@@ -10,4 +10,5 @@ export declare class Collection<T extends Model = any> extends Array<T> {
     remove(index: number): T[];
     get(item: string | T): T | undefined;
     set(item: T): this;
+    toArray(): T[];
 }

@@ -41,7 +41,10 @@ Making Models:
 
 Using and creating models should be similar to using Laravel Eloquent Models.
 
-Note: The Authenticatable class for user models is still under development.
+Notes:
+
+- The Authenticatable class for user models is still under development.
+- It's possible to not override the constructor of the class, the library will try to infer the collection name according to the name of the class. But this is not recommended because building a production version of an app that is using this library will most likely rename these classes due to minification of the code from webpack or other module bundlers.
 
 ```typescript
 import { Model, ModelData } from 'firestore-eloquent';
@@ -54,6 +57,11 @@ export interface PostData extends ModelData {
 
 export class Post extends Model<PostData> {
     type = Post;
+
+    constructor(data?: Partial<PostData>) {
+        super(data);
+        this.name = 'posts';
+    }
     
     fillable() {
         return ['title', 'description'];
@@ -98,6 +106,19 @@ await post.first();
 // find one by id
 await post.findOne(id);
 
+// Reading data
+
+// get a specific key
+console.log(post.get('title')) // My Title
+
+// get all data
+console.log(post.getData()) // { title: 'My Title', description: 'My Description' }
+
+// set data
+post.set('title', 'My New Title');
+
+await post.save();
+
 ```
 
 ### Events
@@ -109,6 +130,11 @@ Example:
 ```typescript
 export class Post extends Model<PostData> {
     type = Post;
+
+    constructor(data?: Partial<PostData>) {
+        super(data);
+        this.name = 'posts';
+    }
 
     fillable() {
         return ['title', 'description'];
@@ -140,6 +166,11 @@ Example:
 ```typescript
 export class Post extends Model<PostData> {
     type = Post;
+
+    constructor(data?: Partial<PostData>) {
+        super(data);
+        this.name = 'posts';
+    }
     
     fillable() {
         return ['title', 'description'];
@@ -152,6 +183,11 @@ export class Post extends Model<PostData> {
 
 export class Comment extends Model<CommentData> {
     type = Comment;
+
+    constructor(data?: Partial<CommentData>) {
+        super(data);
+        this.name = 'comments';
+    }
     
     fillable() {
         return ['body'];
@@ -175,6 +211,80 @@ const comment = await post.comments().create(data);
 
 // fetching
 const comments = await post.comments().getAll();
+
+// loading
+await post.load(['comments']);
+```
+
+### Collections
+
+Collections extend the `Array` class and has several methods added to it. `Model.all()` and `hasMany` relationships all return Collections of that model. Some of the methods are overriden to improve their functionality such as `collection.includes(model)` and `collection.indexOf(model)`.
+
+```typescript
+const posts = await new Post().all(); // Collection<Post>
+
+// call methods from `Array`
+const post = posts.pop();
+
+post.set('title', 'Another Title');
+
+// pushes the post if it does not exist, otherwise it replaces with it's index
+posts.set(post);
+
+// or do this instead
+posts.replace(post)
+
+// find by id
+const newPost = posts.get(id);
+
+// load relationships of all posts
+await posts.load(['comments']);
+const comments = posts.map(post => post.get('comments')); // CommentData[]
+
+// turn into a normal `Array`
+const array = posts.toArray();
+```
+
+### JSON
+
+Calling `JSON.stringify` on models will automatically call `getData()` on them, this applies to collections as well.
+
+### Observers and Listeners
+
+There are wrapper methods available to make use of firestore's onSnapshot method.
+
+```typescript
+import { listen, addListener, removeListener, clearListeners } from 'firestore-eloquent';
+
+// add a listener
+const handle = addListener(Post, (posts) => {
+    console.log(posts) // Post[]
+});
+
+// remove a listener
+removeListener(Post, handle);
+
+// tell the library to actually start listening to onSnapshot methods
+listen(Post)
+
+// remove all registered listeners
+clearListeners(Post)
+
+```
+
+#### Example in React
+
+```typescript
+const [posts, setPosts] = useState<Post[]>([]);
+
+useEffect(() => {
+    const handle = addListener(Post, setPosts);
+    listen(Post);
+
+    return () => {
+        removeListener(Post, handle);
+    };
+}, []);
 ```
 
 ### Contributing
