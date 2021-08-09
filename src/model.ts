@@ -48,7 +48,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	getTableName() {
-		return this.name;
+		return pluralize(this.name);
 	}
 
 	toJSON() {
@@ -146,7 +146,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	getCollection() {
-		return makeCollection(this.name);
+		return makeCollection(this.getTableName());
 	}
 
 	fill(data: Partial<T>) {

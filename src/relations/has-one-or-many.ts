@@ -1,3 +1,4 @@
+import { singular } from 'pluralize';
 import { Collection } from '../collection';
 import { InteractsWithRelationship, ModelData } from '../contracts';
 import { Model } from '../model';
@@ -93,6 +94,6 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	}
 
 	protected getForeignKey() {
-		return this.parent.name.toLowerCase() + '_id';
+		return singular(this.parent.name.toLowerCase()) + '_id';
 	}
 }

@@ -3,10 +3,7 @@ import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
-export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
-	T,
-	D
-> {
+export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<T, D> {
 	async get() {
 		try {
 			this.queries.forEach((query) => {
@@ -27,14 +24,14 @@ export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
 				}
 			});
 			const foreignKey = this.getForeignKey();
-			const collection = await this.relation
-				.where(foreignKey, '==', this.parent.get('id'))
-				.getAll();
+			const collection = await this.relation.where(foreignKey, '==', this.parent.get('id')).getAll();
 			this.clearQueries();
 			this.parent.set(this.name, collection);
 			return collection;
 		} catch (error) {
 			throw error;
+		} finally {
+			this.clearQueries();
 		}
 	}
 
@@ -58,13 +55,12 @@ export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
 				}
 			});
 			const foreignKey = this.getForeignKey();
-			const model = await this.relation
-				.where(foreignKey, '==', this.parent.get('id'))
-				.findOne(id);
-			this.clearQueries();
+			const model = await this.relation.where(foreignKey, '==', this.parent.get('id')).findOne(id);
 			return model;
 		} catch (error) {
 			throw error;
+		} finally {
+			this.clearQueries();
 		}
 	}
 

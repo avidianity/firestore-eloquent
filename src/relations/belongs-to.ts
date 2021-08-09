@@ -1,3 +1,4 @@
+import { singular } from 'pluralize';
 import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { QueryBuilder } from '../query-builder';
@@ -66,6 +67,6 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 	}
 
 	protected getForeignKey() {
-		return this.parent.name.toLowerCase() + '_id';
+		return singular(this.parent.name.toLowerCase()) + '_id';
 	}
 }

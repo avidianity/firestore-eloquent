@@ -2,10 +2,7 @@ import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
-export class HasOne<T extends Model, D extends ModelData> extends HasOneOrMany<
-	T,
-	D
-> {
+export class HasOne<T extends Model, D extends ModelData> extends HasOneOrMany<T, D> {
 	async get() {
 		try {
 			this.queries.forEach((query) => {
@@ -25,14 +22,15 @@ export class HasOne<T extends Model, D extends ModelData> extends HasOneOrMany<
 						break;
 				}
 			});
-			const child = await this.relation
-				.where(this.getForeignKey(), '==', this.parent.get('id'))
-				.first();
-			this.clearQueries();
+
+			const child = await this.relation.where(this.getForeignKey(), '==', this.parent.get('id')).first();
+
 			this.parent.set(this.name, child);
 			return child;
 		} catch (error) {
 			throw error;
+		} finally {
+			this.clearQueries();
 		}
 	}
 }
