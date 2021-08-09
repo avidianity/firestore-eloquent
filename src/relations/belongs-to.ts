@@ -8,11 +8,11 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 	protected parent: T;
 	protected name: string;
 
-	constructor(child: T, parent: T, name: string) {
+	constructor(child: T, parent: T, name?: string) {
 		super();
 		this.child = child;
 		this.parent = parent;
-		this.name = name;
+		this.name = name || singular(parent.name);
 	}
 
 	async get() {
@@ -35,11 +35,13 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 				}
 			});
 			const parent = await this.parent.findOne(this.child.get(this.getForeignKey()));
-			this.clearQueries();
+
 			this.child.set(this.name, parent);
 			return parent;
 		} catch (error) {
 			throw error;
+		} finally {
+			this.clearQueries();
 		}
 	}
 

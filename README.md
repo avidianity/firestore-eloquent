@@ -177,7 +177,7 @@ export class Post extends Model<PostData> {
     }
 
     comments() {
-        return this.hasMany(new Comment(), 'comments');
+        return this.hasMany(new Comment());
     }
 }
 
@@ -194,7 +194,7 @@ export class Comment extends Model<CommentData> {
     }
 
     post() {
-        return this.belongsTo(new Post(), 'post');
+        return this.belongsTo(new Post());
     }
 }
 

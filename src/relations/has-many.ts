@@ -4,6 +4,11 @@ import { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
 export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<T, D> {
+	constructor(relation: T, parent: Model, name?: string) {
+		super(relation, parent);
+		this.name = name || relation.getTableName();
+	}
+
 	async get() {
 		try {
 			this.queries.forEach((query) => {

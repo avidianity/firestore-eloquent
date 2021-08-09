@@ -1,8 +1,14 @@
+import { singular } from 'pluralize';
 import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
 export class HasOne<T extends Model, D extends ModelData> extends HasOneOrMany<T, D> {
+	constructor(relation: T, parent: Model, name?: string) {
+		super(relation, parent);
+		this.name = name || singular(relation.name);
+	}
+
 	async get() {
 		try {
 			this.queries.forEach((query) => {

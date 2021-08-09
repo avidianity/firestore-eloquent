@@ -9,11 +9,10 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	protected parent: Model<any>;
 	protected name: string;
 
-	constructor(relation: T, parent: Model, name: string) {
+	constructor(relation: T, parent: Model) {
 		super();
 		this.relation = relation;
 		this.parent = parent;
-		this.name = name;
 	}
 
 	get() {
