@@ -21,7 +21,7 @@ const events = {
 };
 
 export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
-	protected name: string;
+	name: string;
 
 	constructor() {
 		super();

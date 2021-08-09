@@ -2,10 +2,7 @@ import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { QueryBuilder } from '../query-builder';
 
-export class BelongsTo<
-	T extends Model,
-	D extends ModelData
-> extends QueryBuilder<D> {
+export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilder<D> {
 	protected child: T;
 	protected parent: T;
 	protected name: string;
@@ -36,9 +33,7 @@ export class BelongsTo<
 						break;
 				}
 			});
-			const parent = await this.parent.findOne(
-				this.child.get(this.getForeignKey())
-			);
+			const parent = await this.parent.findOne(this.child.get(this.getForeignKey()));
 			this.clearQueries();
 			this.child.set(this.name, parent);
 			return parent;
@@ -71,6 +66,6 @@ export class BelongsTo<
 	}
 
 	protected getForeignKey() {
-		return this.parent.constructor.name.toLowerCase() + '_id';
+		return this.parent.name.toLowerCase() + '_id';
 	}
 }

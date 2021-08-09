@@ -93,6 +93,6 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	}
 
 	protected getForeignKey() {
-		return this.parent.constructor.name.toLowerCase() + '_id';
+		return this.parent.name.toLowerCase() + '_id';
 	}
 }
