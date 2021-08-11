@@ -1,6 +1,6 @@
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
-import pluralize from 'pluralize';
+import pluralize, { isSingular } from 'pluralize';
 import { InteractsWithRelationship, ModelData } from './contracts';
 import { makeCollection } from './db';
 
@@ -48,7 +48,8 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	getTableName() {
-		return pluralize(this.name);
+		const name = isSingular(this.name) ? pluralize(this.name) : this.name;
+		return name.length > 0 ? name : pluralize(this.constructor.name.toLowerCase());
 	}
 
 	toJSON() {

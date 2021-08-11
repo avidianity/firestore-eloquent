@@ -5,7 +5,7 @@ import { BelongsTo } from './relations/belongs-to';
 import { HasMany } from './relations/has-many';
 import { HasOne } from './relations/has-one';
 export declare abstract class HasRelationship<D extends ModelData> extends QueryBuilder<D> {
-    protected hasMany<T extends Model>(relation: T, name: string): HasMany<T, D>;
-    protected hasOne<T extends Model>(relation: T, name: string): HasOne<T, D>;
-    protected belongsTo<T extends Model>(parent: T, name: string): BelongsTo<T, D>;
+    protected hasMany<T extends Model>(relation: T, name?: string): HasMany<T, D>;
+    protected hasOne<T extends Model>(relation: T, name?: string): HasOne<T, D>;
+    protected belongsTo<T extends Model>(parent: T, name?: string): BelongsTo<T, D>;
 }
