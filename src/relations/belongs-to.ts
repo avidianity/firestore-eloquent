@@ -52,7 +52,8 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 
 			return parent;
 		} catch (error) {
-			console.error(error);
+			const key = this.getForeignKey();
+			console.error(error, key, this.child.get(key));
 			return null;
 		} finally {
 			this.clearQueries();
