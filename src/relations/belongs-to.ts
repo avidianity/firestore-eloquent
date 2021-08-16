@@ -1,9 +1,9 @@
 import { singular } from 'pluralize';
-import { ModelData } from '../contracts';
+import { InteractsWithRelationship, ModelData } from '../contracts';
 import { Model } from '../model';
 import { QueryBuilder } from '../query-builder';
 
-export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilder<D> {
+export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilder<D> implements InteractsWithRelationship<T> {
 	protected child: T;
 	protected parent: T;
 	protected name: string;
@@ -13,6 +13,17 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 		this.child = child;
 		this.parent = parent;
 		this.name = name || singular(parent.name);
+	}
+
+	create() {
+		throw new Error('Cannot create parent.');
+		return new Promise<T>(() => {});
+	}
+
+	async update(data: D) {
+		const parent = await this.parent.update(data);
+		this.child.set(this.name, parent);
+		return parent;
 	}
 
 	async get() {

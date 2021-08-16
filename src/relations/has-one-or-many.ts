@@ -16,11 +16,10 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	}
 
 	get() {
-		throw new Error('get() needs to be defined on the child class.');
 		return new Promise<T | Collection<T> | any>(() => {});
 	}
 
-	async create(data: any) {
+	async create(data: Partial<D>) {
 		try {
 			const model = new this.relation.type();
 			model.fill(data);
@@ -32,7 +31,7 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 		}
 	}
 
-	async update(data: any) {
+	async update(data: Partial<D>) {
 		try {
 			this.relation.fill(data);
 			this.relation.set(this.getForeignKey(), this.parent.get('id'));
@@ -44,7 +43,10 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	}
 
 	save(instance?: T) {
-		const relation = instance || this.relation;
+		if (instance) {
+			this.relation.fill(instance instanceof Model ? instance.getData() : instance);
+		}
+		const relation = this.relation;
 		const data = relation.getData();
 		relation.set(this.getForeignKey(), this.parent.get('id'));
 		return relation.get('id') === null ? relation.create(data) : relation.update(data);
