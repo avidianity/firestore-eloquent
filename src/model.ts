@@ -105,6 +105,10 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	async findOne(id: string) {
+		if (id === null || id.length === 0) {
+			return null;
+		}
+
 		try {
 			let collection = this.getCollection() as any;
 			this.queries.forEach((query) => {
@@ -131,7 +135,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			});
 			const document = await collection.doc(id).get();
 			if (!document) {
-				throw new Error('Model does not exist.');
+				return null;
 			}
 			const body = {
 				...document.data(),

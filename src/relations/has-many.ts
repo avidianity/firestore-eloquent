@@ -40,7 +40,7 @@ export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
 		}
 	}
 
-	async find(id: string): Promise<T> {
+	async find(id: string): Promise<T | null> {
 		try {
 			this.queries.forEach((query) => {
 				switch (query.method) {

@@ -8,7 +8,7 @@ export interface ModelData {
 }
 
 export interface InteractsWithRelationship<T extends Model> {
-	get(): Promise<T | Collection<T>>;
+	get(): Promise<T | Collection<T> | null>;
 	create(data: any): Promise<T | Collection<T>>;
 	save(instance?: T): Promise<T | Collection<T>>;
 	update(data: any): Promise<T | Collection<T>>;

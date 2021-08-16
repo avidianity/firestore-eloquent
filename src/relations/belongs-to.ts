@@ -48,9 +48,11 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 			const parent = await this.parent.findOne(this.child.get(this.getForeignKey()));
 
 			this.child.set(this.name, parent);
+
 			return parent;
 		} catch (error) {
-			throw error;
+			console.error(error);
+			return null;
 		} finally {
 			this.clearQueries();
 		}
@@ -59,6 +61,7 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 	set(parent: T) {
 		this.child.set(this.getForeignKey(), parent.get('id'));
 		this.child.set(this.name, parent);
+		this.child.save().catch(console.error);
 		return this;
 	}
 
@@ -68,7 +71,7 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 		}
 		try {
 			await this.parent.save();
-			this.child.set(this.name, this.parent);
+			this.set(this.parent);
 			return this.child;
 		} catch (error) {
 			throw error;
