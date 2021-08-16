@@ -1,4 +1,4 @@
-import { singular } from 'pluralize';
+import { isSingular, singular } from 'pluralize';
 import { InteractsWithRelationship, ModelData } from '../contracts';
 import { Model } from '../model';
 import { QueryBuilder } from '../query-builder';
@@ -80,6 +80,6 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 	}
 
 	protected getForeignKey() {
-		return singular(this.parent.name.toLowerCase()) + '_id';
+		return (isSingular(this.name) ? this.name : singular(this.name) + '_id').toLowerCase();
 	}
 }
