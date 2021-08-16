@@ -57,8 +57,7 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 
 			return parent;
 		} catch (error) {
-			console.error(error);
-			return null;
+			throw error;
 		} finally {
 			this.clearQueries();
 		}

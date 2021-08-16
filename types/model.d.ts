@@ -16,6 +16,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     toJSON(): T;
     paginate(page: number, perPage: number): Promise<Collection<any>>;
     findOne(id: string): Promise<this | null>;
+    findOneOrFail(id: string): Promise<this>;
     getCollection(): import("firebase").default.firestore.CollectionReference<import("firebase").default.firestore.DocumentData>;
     fill(data: Partial<T>): this;
     forceFill(data: Partial<T>): this;

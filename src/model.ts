@@ -150,6 +150,16 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		}
 	}
 
+	async findOneOrFail(id: string) {
+		const model = await this.findOne(id);
+
+		if (!model) {
+			throw new Error('Model does not exist.');
+		}
+
+		return model;
+	}
+
 	getCollection() {
 		return makeCollection(this.getTableName());
 	}
