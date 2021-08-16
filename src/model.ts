@@ -105,10 +105,6 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	async findOne(id: string) {
-		if (typeof id !== 'string' || id.length === 0) {
-			return null;
-		}
-
 		try {
 			let collection = this.getCollection() as any;
 			this.queries.forEach((query) => {
@@ -144,7 +140,8 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			this.forceFill(body);
 			return this;
 		} catch (error) {
-			throw error;
+			console.error(error);
+			return null;
 		} finally {
 			this.clearQueries();
 		}
