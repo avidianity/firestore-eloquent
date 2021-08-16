@@ -28,6 +28,12 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 
 	async get() {
 		try {
+			const id = this.child.get(this.getForeignKey());
+
+			if (typeof id !== 'string' || id.length === 0) {
+				return null;
+			}
+
 			this.queries.forEach((query) => {
 				switch (query.method) {
 					case 'where':
@@ -45,11 +51,6 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 						break;
 				}
 			});
-			const id = this.child.get(this.getForeignKey());
-
-			if (!id) {
-				return null;
-			}
 
 			const parent = await this.parent.findOne(id);
 
