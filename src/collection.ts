@@ -8,7 +8,7 @@ export class Collection<T extends Model = any> extends Array<T> {
 	}
 
 	toJSON() {
-		return this.toArray().map((item) => item.toJSON());
+		return this.toArray().map((item) => (item.toJSON ? item.toJSON() : item));
 	}
 
 	save() {
