@@ -1,6 +1,6 @@
 {
 	"name": "firestore-eloquent",
-	"version": "1.5.1",
+	"version": "1.5.2",
 	"description": "A library for creating eloquent models in firestore.",
 	"main": "lib/firestore-eloquent.js",
 	"repository": {
@@ -13,7 +13,8 @@
 	"scripts": {
 		"type-check": "tsc --noEmit",
 		"type-check:watch": "npm run type-check -- --watch",
-		"build": "npm run build:types && npm run build:js",
+		"clean": "rm -rf lib && rm -rf types",
+		"build": "npm run clean && npm run build:types && npm run build:js",
 		"build:types": "tsc --emitDeclarationOnly",
 		"build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline"
 	},

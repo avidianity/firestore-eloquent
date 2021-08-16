@@ -95,6 +95,6 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	}
 
 	protected getForeignKey() {
-		return (this.name + '_id').toLowerCase();
+		return (isSingular(this.name) ? this.name : singular(this.name) + '_id').toLowerCase();
 	}
 }

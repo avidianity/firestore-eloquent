@@ -1,3 +1,4 @@
+import { singular } from 'pluralize';
 import { Collection } from '../collection';
 import { ModelData } from '../contracts';
 import { Model } from '../model';
