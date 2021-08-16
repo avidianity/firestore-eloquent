@@ -3,6 +3,8 @@ import 'firebase/firestore';
 import { Collection } from './collection';
 import { Listener } from './contracts';
 import { Model } from './model';
+export declare function getFirestore(): firebase.firestore.Firestore;
+export declare function setFirestore(firestore: firebase.firestore.Firestore): void;
 export declare const collections: {
     [key: string]: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
 };

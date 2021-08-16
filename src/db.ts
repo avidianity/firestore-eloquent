@@ -4,7 +4,17 @@ import { Collection } from './collection';
 import { Listener } from './contracts';
 import { Model } from './model';
 
-const firestore = firebase.firestore();
+const placeholder: { firestore: firebase.firestore.Firestore | null } = {
+	firestore: null,
+};
+
+export function getFirestore() {
+	return placeholder.firestore || firebase.firestore();
+}
+
+export function setFirestore(firestore: firebase.firestore.Firestore) {
+	placeholder.firestore = firestore;
+}
 
 export const collections: {
 	[key: string]: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
@@ -16,7 +26,7 @@ export const listeners: {
 
 export function makeCollection(name: string) {
 	if (!(name in collections)) {
-		collections[name] = firestore.collection(name);
+		collections[name] = getFirestore().collection(name);
 	}
 	return collections[name];
 }
