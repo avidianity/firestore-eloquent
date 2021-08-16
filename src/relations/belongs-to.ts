@@ -45,7 +45,13 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 						break;
 				}
 			});
-			const parent = await this.parent.findOne(this.child.get(this.getForeignKey()));
+			const id = this.child.get(this.getForeignKey());
+
+			if (!id) {
+				return null;
+			}
+
+			const parent = await this.parent.findOne(id);
 
 			this.child.set(this.name, parent);
 

@@ -105,7 +105,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	async findOne(id: string) {
-		if (id === null || id.length === 0) {
+		if (!id || id.length === 0) {
 			return null;
 		}
 
