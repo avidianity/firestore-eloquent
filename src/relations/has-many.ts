@@ -1,15 +1,8 @@
-import { singular } from 'pluralize';
-import { Collection } from '../collection';
 import { ModelData } from '../contracts';
 import { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
 export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<T, D> {
-	constructor(relation: T, parent: Model, name?: string) {
-		super(relation, parent);
-		this.name = name || relation.getTableName();
-	}
-
 	async get() {
 		try {
 			this.queries.forEach((query) => {
@@ -21,9 +14,6 @@ export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
 					case 'whereIn':
 						this.relation.whereIn(query.key, query.values);
 						break;
-					case 'whereNotIn':
-						this.relation.whereNotIn(query.key, query.values);
-						break;
 					case 'limit':
 						this.relation.limit(query.amount);
 						break;
@@ -31,7 +21,7 @@ export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
 			});
 			const foreignKey = this.getForeignKey();
 			const collection = await this.relation.where(foreignKey, '==', this.parent.get('id')).getAll();
-			this.clearQueries();
+
 			this.parent.set(this.name, collection);
 			return collection;
 		} catch (error) {
@@ -52,9 +42,6 @@ export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
 					case 'whereIn':
 						this.relation.whereIn(query.key, query.values);
 						break;
-					case 'whereNotIn':
-						this.relation.whereNotIn(query.key, query.values);
-						break;
 					case 'limit':
 						this.relation.limit(query.amount);
 						break;
@@ -68,6 +55,16 @@ export class HasMany<T extends Model, D extends ModelData> extends HasOneOrMany<
 		} finally {
 			this.clearQueries();
 		}
+	}
+
+	async findOrFail(id: string) {
+		const model = await this.find(id);
+
+		if (!model) {
+			throw new Error('Model does not exist.');
+		}
+
+		return model;
 	}
 
 	async count() {

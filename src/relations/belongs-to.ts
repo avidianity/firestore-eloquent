@@ -1,4 +1,3 @@
-import { isSingular, singular } from 'pluralize';
 import { InteractsWithRelationship, ModelData } from '../contracts';
 import { Model } from '../model';
 import { QueryBuilder } from '../query-builder';
@@ -12,15 +11,14 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 		super();
 		this.child = child;
 		this.parent = parent;
-		this.name = name || singular(parent.name);
+		this.name = name || parent.getTableName();
 	}
 
-	create() {
+	create(data?: Partial<D>): Promise<T> {
 		throw new Error('Cannot create parent.');
-		return new Promise<T>(() => {});
 	}
 
-	async update(data: D) {
+	async update(data?: Partial<D>) {
 		const parent = await this.parent.update(data);
 		this.child.set(this.name, parent);
 		return parent;
@@ -37,33 +35,29 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 					case 'whereIn':
 						this.parent.whereIn(query.key, query.values);
 						break;
-					case 'whereNotIn':
-						this.parent.whereNotIn(query.key, query.values);
-						break;
 					case 'limit':
 						this.parent.limit(query.amount);
 						break;
 				}
 			});
 
-			const parent = await this.parent.findOne(this.child.get(this.getForeignKey()));
+			const parent = await this.parent.findOneOrFail(this.child.get(this.getForeignKey()));
 
 			this.child.set(this.name, parent);
 
 			return parent;
 		} catch (error) {
-			const key = this.getForeignKey();
-			console.error(error, key, this.child.get(key));
+			this.child.set(this.name, null);
 			return null;
 		} finally {
 			this.clearQueries();
 		}
 	}
 
-	set(parent: T) {
+	async set(parent: T) {
 		this.child.set(this.getForeignKey(), parent.get('id'));
 		this.child.set(this.name, parent);
-		this.child.save().catch(console.error);
+		await this.child.save();
 		return this;
 	}
 
@@ -72,19 +66,19 @@ export class BelongsTo<T extends Model, D extends ModelData> extends QueryBuilde
 			this.parent = parent;
 		}
 		try {
+			await this.set(this.parent);
 			await this.parent.save();
-			this.set(this.parent);
-			return this.child;
+			return this.parent;
 		} catch (error) {
 			throw error;
 		}
 	}
 
-	delete() {
+	async delete(): Promise<void> {
 		throw new Error('Cannot delete parent model.');
 	}
 
 	protected getForeignKey() {
-		return (isSingular(this.name) ? this.name : singular(this.name) + '_id').toLowerCase();
+		return `${this.name}_id`;
 	}
 }

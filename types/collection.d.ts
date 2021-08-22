@@ -1,7 +1,11 @@
+import { ModelData } from './contracts';
 import { Model } from './model';
-export declare class Collection<T extends Model = any> extends Array<T> {
+import { HasMacros } from './has-macros';
+export interface Collection<T extends Model = any, D extends ModelData = any> extends Array<T>, HasMacros {
+}
+export declare class Collection<T extends Model = any, D extends ModelData = any> {
     load(relations: Array<string>): Promise<this>;
-    toJSON(): any[];
+    toJSON(): D[];
     save(): Promise<T[]>;
     delete(): Promise<void>;
     includes(model: T): boolean;

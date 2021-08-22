@@ -6,7 +6,7 @@ export declare type Event = {
     [key: string]: Callback;
 };
 export declare abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
-    name: string;
+    protected name: string;
     constructor();
     creating(callback: (thisArg: this) => void): this;
     created(callback: (thisArg: this) => void): this;

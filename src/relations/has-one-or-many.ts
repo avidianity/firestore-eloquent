@@ -1,4 +1,3 @@
-import { isSingular, singular } from 'pluralize';
 import { Collection } from '../collection';
 import { InteractsWithRelationship, ModelData } from '../contracts';
 import { Model } from '../model';
@@ -9,10 +8,11 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	protected parent: Model<any>;
 	protected name: string;
 
-	constructor(relation: T, parent: Model) {
+	constructor(relation: T, parent: Model, name?: string) {
 		super();
 		this.relation = relation;
 		this.parent = parent;
+		this.name = name || parent.getTableName();
 	}
 
 	get() {
@@ -63,9 +63,6 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 					case 'whereIn':
 						this.relation.whereIn(query.key, query.values);
 						break;
-					case 'whereNotIn':
-						this.relation.whereNotIn(query.key, query.values);
-						break;
 					case 'limit':
 						this.relation.limit(query.amount);
 						break;
@@ -79,6 +76,16 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 		} finally {
 			this.clearQueries();
 		}
+	}
+
+	async firstOrFail() {
+		const child = await this.first();
+
+		if (!child) {
+			throw new Error('Model does not exist');
+		}
+
+		return child;
 	}
 
 	async delete() {
@@ -95,6 +102,6 @@ export abstract class HasOneOrMany<T extends Model, D extends ModelData> extends
 	}
 
 	protected getForeignKey() {
-		return (isSingular(this.name) ? this.name : singular(this.name) + '_id').toLowerCase();
+		return `${this.name}_id`;
 	}
 }

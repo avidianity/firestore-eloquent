@@ -21,7 +21,7 @@ const events = {
 };
 
 export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
-	name: string;
+	protected name: string;
 
 	constructor() {
 		super();
@@ -54,11 +54,10 @@ export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
 	}
 
 	callEvent(name: EventTypes) {
-		if (!(this.name in events[name])) {
-			return this;
+		if (this.name in events[name]) {
+			const callback = events[name][this.name];
+			callback(this);
 		}
-		const callback = events[name][this.name];
-		callback(this);
 		return this;
 	}
 

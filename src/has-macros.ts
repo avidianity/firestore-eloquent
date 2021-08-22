@@ -22,6 +22,7 @@ export abstract class HasMacros {
 		if (!macro) {
 			throw new Error(`${key} is not a registered macro.`);
 		}
-		return macro.callable(...parameters);
+
+		return macro.callable.bind(this)(...parameters);
 	}
 }

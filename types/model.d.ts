@@ -6,6 +6,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     protected data: T;
     type: any;
     constructor(data?: Partial<T>);
+    static createQueryBuilder(): Model<any>;
     protected fillable(): Array<string>;
     protected booting(): void;
     protected booted(): void;
@@ -14,7 +15,9 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     keys(): string[];
     getTableName(): string;
     toJSON(): T;
-    paginate(page: number, perPage: number): Promise<Collection<any>>;
+    toRawData(): T;
+    static make(data?: any): Model<any>;
+    paginate(page: number, perPage: number): Promise<Collection<this, T>>;
     findOne(id: string): Promise<this | null>;
     findOneOrFail(id: string): Promise<this>;
     getCollection(): import("firebase").default.firestore.CollectionReference<import("firebase").default.firestore.DocumentData>;
@@ -26,10 +29,11 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     get<K extends keyof T>(key: K): T[K];
     getData(): T;
     first(): Promise<this | null>;
-    getAll(): Promise<Collection<this>>;
+    firstOrFail(): Promise<this>;
+    getAll(): Promise<Collection<this, T>>;
     withoutRelations(): T;
     load(relations: Array<string>): Promise<this>;
-    all(): Promise<Collection<this>>;
+    all(): Promise<Collection<this, T>>;
     create(data?: T): Promise<this>;
     update(data?: Partial<T>): Promise<this>;
     id(): string;

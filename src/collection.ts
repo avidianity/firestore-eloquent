@@ -1,13 +1,14 @@
+import { ModelData } from './contracts';
 import { Model } from './model';
 
-export class Collection<T extends Model = any> extends Array<T> {
+export class Collection<T extends Model = any, D extends ModelData = any> extends Array<T> {
 	async load(relations: Array<string>) {
 		const results = await Promise.all(this.map((item) => item.load(relations)));
 		results.forEach((item, index) => this.splice(index, 1, item));
 		return this;
 	}
 
-	toJSON() {
+	toJSON(): D[] {
 		return this.toArray().map((item) => (item.toJSON ? item.toJSON() : item));
 	}
 

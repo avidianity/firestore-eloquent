@@ -1,7 +1,6 @@
 import { Collection } from './collection';
 import { HasEvent } from './has-event';
-import pluralize, { isSingular } from 'pluralize';
-import { InteractsWithRelationship, ModelData } from './contracts';
+import { FirestoreCollection, InteractsWithRelationship, ModelData } from './contracts';
 import { makeCollection } from './db';
 
 export class Model<T extends ModelData = any> extends HasEvent<T> {
@@ -15,7 +14,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		this.fillables = this.fillable();
 
 		if (!this.name || this.name.length === 0) {
-			this.name = pluralize(this.constructor.name.toLowerCase());
+			this.name = this.constructor.name.toLowerCase();
 		}
 
 		if (!('id' in this.data)) {
@@ -25,6 +24,10 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			this.fill(data);
 		}
 		this.booted();
+	}
+
+	static createQueryBuilder() {
+		return new this();
 	}
 
 	protected fillable(): Array<string> {
@@ -48,17 +51,24 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	getTableName() {
-		const name = isSingular(this.name) ? pluralize(this.name) : this.name;
-		return name.length > 0 ? name : pluralize(this.constructor.name.toLowerCase());
+		return this.name;
 	}
 
 	toJSON() {
 		return this.getData();
 	}
 
-	async paginate(page: number, perPage: number) {
+	toRawData() {
+		return { ...this.data };
+	}
+
+	static make(data?: any) {
+		return new this(data);
+	}
+
+	async paginate(page: number, perPage: number): Promise<Collection<this, T>> {
 		try {
-			let collection = this.getCollection() as any;
+			let collection: FirestoreCollection = this.getCollection();
 			this.queries.forEach((query) => {
 				switch (query.method) {
 					case 'where':
@@ -82,12 +92,13 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 				}
 			});
 			const snapshot = await collection
-				.limit(perPage)
+				.orderBy('id')
 				.startAt(perPage * (page - 1))
+				.limit(perPage)
 				.get();
 
 			const data = new Collection();
-			snapshot.forEach((document: { data: () => T; id: any }) => {
+			snapshot.forEach((document) => {
 				const body = {
 					...document.data(),
 					id: document.id,
@@ -104,39 +115,19 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		}
 	}
 
-	async findOne(id: string) {
+	async findOne(id: string): Promise<this | null> {
 		try {
-			let collection = this.getCollection() as any;
-			this.queries.forEach((query) => {
-				switch (query.method) {
-					case 'where':
-						const { operator, value } = query;
-						collection = collection.where(query.key, operator, value);
-						break;
-					case 'whereIn':
-						const { values } = query;
-						values.forEach((value: any) => {
-							collection = collection.where(query.key, '==', value);
-						});
-						break;
-					case 'whereNotIn':
-						query.values.forEach((value: any) => {
-							collection = collection.where(query.key, '!=', value);
-						});
-						break;
-					case 'limit':
-						collection = collection.limit(query.amount);
-						break;
-				}
-			});
-			const document = await collection.doc(id).get();
-			if (!document) {
+			const document = await this.getCollection().doc(id).get();
+
+			if (!document.exists) {
 				return null;
 			}
-			const body = {
+
+			const body: any = {
 				...document.data(),
 				id: document.id,
 			};
+
 			this.forceFill(body);
 			return this;
 		} catch (error) {
@@ -185,30 +176,8 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	async delete() {
 		try {
 			this.callEvent('deleting');
-			let collection = this.getCollection() as any;
-			this.queries.forEach((query) => {
-				switch (query.method) {
-					case 'where':
-						const { operator, value } = query;
-						collection = collection.where(query.key, operator, value);
-						break;
-					case 'whereIn':
-						const { values } = query;
-						values.forEach((value: any) => {
-							collection = collection.where(query.key, '==', value);
-						});
-						break;
-					case 'whereNotIn':
-						query.values.forEach((value: any) => {
-							collection = collection.where(query.key, '!=', value);
-						});
-						break;
-					case 'limit':
-						collection = collection.limit(query.amount);
-						break;
-				}
-			});
-			await collection.doc(this.data.id).delete();
+			let collection = this.getCollection();
+			await collection.doc(this.id()).delete();
 			this.callEvent('deleted');
 
 			return;
@@ -281,9 +250,19 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		return null;
 	}
 
-	async getAll(): Promise<Collection<this>> {
+	async firstOrFail() {
+		const item = await this.first();
+
+		if (!item) {
+			throw new Error('Model does not exist.');
+		}
+
+		return item;
+	}
+
+	async getAll(): Promise<Collection<this, T>> {
 		try {
-			let collection = this.getCollection() as any;
+			let collection: FirestoreCollection = this.getCollection();
 			this.queries.forEach((query) => {
 				switch (query.method) {
 					case 'where':
@@ -309,7 +288,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			const snapshot = await collection.get();
 			const data = new Collection();
 
-			snapshot.forEach((document: any) => {
+			snapshot.forEach((document) => {
 				const body = {
 					...document.data(),
 					id: document.id,
@@ -333,7 +312,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		for (const key in this.data) {
 			const value = this.data[key];
 
-			if (value instanceof Model === false) {
+			if (value instanceof Model === false && value instanceof Collection === false) {
 				data[key] = value;
 			}
 		}
@@ -367,10 +346,14 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 
 		const ref = this.getCollection().doc();
 
-		await ref.set({
-			...this.data,
+		const payload = {
+			...this.withoutRelations(),
 			id: ref.id,
-		});
+		};
+
+		await ref.set(payload);
+
+		this.forceFill(payload);
 
 		this.callEvent('created').callEvent('saved');
 		return this;
@@ -385,11 +368,9 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 			this.callEvent('updating').callEvent('saving');
 			this.set('updated_at', new Date().toJSON());
 
-			await this.getCollection()
-				.doc(this.data.id)
-				.set({
-					...this.withoutRelations(),
-				});
+			const data = this.withoutRelations();
+
+			await this.getCollection().doc(data.id).set(data);
 
 			this.callEvent('updated').callEvent('saved');
 			return this;
@@ -407,7 +388,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		if (data) {
 			this.fill(data);
 		}
-		return !('id' in this.data) || !this.data.id || this.data.id.length === 0 ? this.create() : this.update();
+		return this.has('id') ? this.update() : this.create();
 	}
 
 	unset<K extends keyof T>(key: K) {
@@ -416,6 +397,6 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 	}
 
 	has<K extends keyof T>(key: K) {
-		return this.get(key) !== null;
+		return key in this.data || this.get(key) !== null;
 	}
 }

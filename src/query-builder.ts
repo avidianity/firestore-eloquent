@@ -39,16 +39,6 @@ export class QueryBuilder<T extends ModelData> extends HasMacros {
 		return this;
 	}
 
-	whereNotIn<K extends keyof T>(key: K, values: Array<T[K]>) {
-		this.queries.push({
-			key: <string>key,
-			values,
-			method: 'whereNotIn',
-			amount: 0,
-		});
-		return this;
-	}
-
 	limit(amount: number) {
 		this.queries.push({ amount, method: 'limit', key: 'N/A' });
 		return this;
