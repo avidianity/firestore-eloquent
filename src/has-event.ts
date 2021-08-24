@@ -53,7 +53,7 @@ export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
 		return this.registerEvent('saved', callback);
 	}
 
-	callEvent(name: EventTypes) {
+	protected callEvent(name: EventTypes) {
 		if (this.name in events[name]) {
 			const callback = events[name][this.name];
 			callback(this);
@@ -61,9 +61,9 @@ export abstract class HasEvent<T extends ModelData> extends HasRelationship<T> {
 		return this;
 	}
 
-	registerEvent(name: EventTypes, callback: Callback<this>) {
+	protected registerEvent(name: EventTypes, callback: Callback<this>) {
 		if (!(this.name in events[name])) {
-			events[name][this.name] = callback;
+			events[name][this.name] = callback.bind(this);
 		}
 		return this;
 	}

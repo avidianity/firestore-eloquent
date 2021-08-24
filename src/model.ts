@@ -334,7 +334,7 @@ export class Model<T extends ModelData = any> extends HasEvent<T> {
 		return this.getAll();
 	}
 
-	async create(data?: T) {
+	async create(data?: Partial<T>) {
 		if (data) {
 			this.fill(data);
 		}

@@ -16,6 +16,6 @@ export declare abstract class HasEvent<T extends ModelData> extends HasRelations
     deleted(callback: (thisArg: this) => void): this;
     saving(callback: (thisArg: this) => void): this;
     saved(callback: (thisArg: this) => void): this;
-    callEvent(name: EventTypes): this;
-    registerEvent(name: EventTypes, callback: Callback<this>): this;
+    protected callEvent(name: EventTypes): this;
+    protected registerEvent(name: EventTypes, callback: Callback<this>): this;
 }

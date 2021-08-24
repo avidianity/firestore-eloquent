@@ -12,8 +12,9 @@ export class Collection<T extends Model = any, D extends ModelData = any> extend
 		return this.toArray().map((item) => (item.toJSON ? item.toJSON() : item));
 	}
 
-	save() {
-		return Promise.all(this.map((item) => item.save()));
+	async save(): Promise<Collection<T, D>> {
+		const items = await Promise.all(this.map((item) => item.save()));
+		return new Collection(...items);
 	}
 
 	async delete() {
@@ -31,7 +32,7 @@ export class Collection<T extends Model = any, D extends ModelData = any> extend
 	}
 
 	replace(model: T, index?: number) {
-		if (index) {
+		if (index !== undefined) {
 			return this.splice(index, 1, model);
 		}
 		const modelIndex = this.indexOf(model);

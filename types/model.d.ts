@@ -34,7 +34,7 @@ export declare class Model<T extends ModelData = any> extends HasEvent<T> {
     withoutRelations(): T;
     load(relations: Array<string>): Promise<this>;
     all(): Promise<Collection<this, T>>;
-    create(data?: T): Promise<this>;
+    create(data?: Partial<T>): Promise<this>;
     update(data?: Partial<T>): Promise<this>;
     id(): string;
     save(data?: Partial<T>): Promise<this>;

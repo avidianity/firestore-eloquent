@@ -58,6 +58,20 @@ describe('collection test suite', () => {
 		const count = await post.comments().count();
 		expect(count === 0).toBeTruthy();
 	});
+
+	it('saves all items', async () => {
+		expect.assertions(3);
+
+		expect(await collection.save()).toBeInstanceOf(Collection);
+
+		const model = collection[0];
+
+		expect(collection.indexOf(model) === 0).toBeTruthy();
+
+		collection.remove(collection.indexOf(model));
+
+		expect(collection.length >= 0).toBeTruthy();
+	});
 });
 
 afterAll(async () => {
