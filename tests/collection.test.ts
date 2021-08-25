@@ -1,6 +1,6 @@
 import firebase from 'firebase';
 import faker from 'faker';
-import { getFirestore, Model, setFirestore, Collection } from '../src/firestore-eloquent';
+import { getFirestore, setFirestore, Collection } from '../src/firestore-eloquent';
 import { app, Comment, Post } from './app';
 
 let firestore: firebase.firestore.Firestore;
@@ -34,7 +34,7 @@ describe('collection test suite', () => {
 		expect(posts.toJSON()).toBeInstanceOf(Array);
 	});
 
-	it('tests get/set/toArray', async () => {
+	it('tests get/set/toArray/replace', async () => {
 		expect.assertions(3);
 
 		const child = collection.get(comment);
@@ -47,6 +47,8 @@ describe('collection test suite', () => {
 		}).save();
 
 		collection.set(newChild);
+		collection.replace(newChild);
+		collection.replace(newChild, collection.length);
 
 		expect(collection.includes(newChild)).toBeTruthy();
 

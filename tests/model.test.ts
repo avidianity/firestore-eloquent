@@ -112,6 +112,17 @@ describe('model test suite', () => {
 
 		expect(value).toBe('value');
 	});
+
+	it('checks `Object`.(entries|values|keys)', () => {
+		expect.assertions(3);
+		const model = new TestModel();
+		const values = model.values();
+		const entries = model.entries();
+		const keys = model.keys();
+		expect(values).toBeInstanceOf(Array);
+		expect(entries).toBeInstanceOf(Array);
+		expect(keys).toBeInstanceOf(Array);
+	});
 });
 
 afterAll(async () => {

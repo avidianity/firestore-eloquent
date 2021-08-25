@@ -38,11 +38,14 @@ describe('model `hasMany` relationship test suite', () => {
 	});
 
 	it('finds a child', async () => {
-		expect.assertions(2);
+		expect.assertions(3);
 
 		const child = await post.comments().find(comment.id());
 
+		const data = post.getData();
+
 		expect(child).toBeInstanceOf(Comment);
+		expect(typeof data === 'object').toBeTruthy();
 
 		try {
 			await post

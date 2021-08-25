@@ -27,11 +27,14 @@ describe('model `hasOne` relationship test suite', () => {
 	});
 
 	it('updates child', async () => {
+		expect.assertions(2);
 		const name = faker.random.words(3);
 
 		const child = await post.image().update({ name });
+		const data = post.getData();
 
 		expect(child.get('name') === name).toBeTruthy();
+		expect(typeof data === 'object').toBeTruthy();
 	});
 
 	it('gets null', async () => {
