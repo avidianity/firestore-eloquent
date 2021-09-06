@@ -86,7 +86,7 @@ export class Post extends Model<PostData> {
         this.name = 'posts';
     }
     
-    fillable() {
+    protected fillable() {
         return ['title', 'description'];
     }
 }
@@ -159,12 +159,12 @@ export class Post extends Model<PostData> {
         this.name = 'posts';
     }
 
-    fillable() {
+    protected fillable() {
         return ['title', 'description'];
     }
 
     // register events here
-    booted() {
+    protected booted() {
         this.creating((post) => {});
         this.created((post) => {});
 
@@ -195,7 +195,7 @@ export class Post extends Model<PostData> {
         this.name = 'posts';
     }
     
-    fillable() {
+    protected fillable() {
         return ['title', 'description'];
     }
 
@@ -212,7 +212,7 @@ export class Comment extends Model<CommentData> {
         this.name = 'comments';
     }
     
-    fillable() {
+    protected fillable() {
         return ['body'];
     }
 
