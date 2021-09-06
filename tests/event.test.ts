@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 import faker from 'faker';
 import { getFirestore, Model, ModelData, setFirestore } from '../src/firestore-eloquent';
-import { app } from './app';
+import { app, clear } from './app';
 
 interface PostData extends ModelData {
 	name: string;
@@ -68,6 +68,7 @@ describe('model `events` test suite', () => {
 });
 
 afterAll(async () => {
+	await clear();
 	await firestore.terminate();
 	await app.delete();
 	await getFirestore().terminate();

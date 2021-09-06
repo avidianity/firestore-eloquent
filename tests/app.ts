@@ -55,3 +55,11 @@ export class Comment extends Model<TestData & { post_id: string }> {
 		return this.belongsTo(Post);
 	}
 }
+
+export async function clear() {
+	// clear out everything
+	await (await new TestModel().all()).delete();
+	await (await new Post().all()).delete();
+	await (await new Comment().all()).delete();
+	await (await new Image().all()).delete();
+}

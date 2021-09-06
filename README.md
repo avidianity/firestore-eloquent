@@ -28,7 +28,7 @@ __Note:__ Firebase must be initialized before using these models.
 Example:
 
 ```javascript
-firebase.initializeApp({
+const app = firebase.initializeApp({
   apiKey: "AIza....",
   appId: "1:27992087142:web:ce....",
   projectId: "my-firebase-project",
@@ -40,6 +40,25 @@ firebase.initializeApp({
 });
 ```
 
+If you have an already existing firestore instance:
+
+```javascript
+import { setFirestore } from 'firestore-eloquent';
+
+const firestore = app.firestore();
+
+setFirestore(firestore);
+```
+
+You can also get the firestore instance that is being used:
+
+```javascript
+import { getFirestore } from 'firestore-eloquent';
+
+// returns firebase.firestore.Firestore
+const firestore = getFirestore();
+```
+
 Making Models:
 
 Using and creating models should be similar to using Laravel Eloquent Models.
@@ -47,7 +66,7 @@ Using and creating models should be similar to using Laravel Eloquent Models.
 Notes:
 
 - The Authenticatable class for user models is still under development.
-- It's possible to not override the constructor of the class, the library will try to infer the collection name according to the name of the class. But this is not recommended because building a production version of an app that is using this library will most likely rename these classes due to minification of the code from webpack or other module bundlers.
+- It's possible to not override the constructor of the class, the library will try to infer the collection name according to the name of the class (ex: model `Post` will have a collection name of `post`). But this is not recommended because building a production version of an app that is using this library will most likely rename these classes due to minification of the code from webpack or other module bundlers.
 
 ```typescript
 import { Model, ModelData } from 'firestore-eloquent';
@@ -63,6 +82,7 @@ export class Post extends Model<PostData> {
 
     constructor(data?: Partial<PostData>) {
         super(data);
+        // explicitly set collection name
         this.name = 'posts';
     }
     
@@ -180,7 +200,7 @@ export class Post extends Model<PostData> {
     }
 
     comments() {
-        return this.hasMany(new Comment());
+        return this.hasMany(Comment);
     }
 }
 
@@ -197,7 +217,7 @@ export class Comment extends Model<CommentData> {
     }
 
     post() {
-        return this.belongsTo(new Post());
+        return this.belongsTo(Post);
     }
 }
 
@@ -292,9 +312,7 @@ useEffect(() => {
 
 ### Contributing
 
-I would really appreciate it if someone can help me create and improve the docs.
-I made this on short notice for my personal use and I will try to update this package
-as frequent as possible.
+Contributions are welcome! Just fork the project and make a pull request.
 
 ### License
 

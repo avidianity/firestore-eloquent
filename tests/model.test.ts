@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 import faker from 'faker';
 import { getFirestore, Model, setFirestore, Collection } from '../src/firestore-eloquent';
-import { app, TestModel } from './app';
+import { app, clear, TestModel } from './app';
 
 let firestore: firebase.firestore.Firestore;
 
@@ -126,6 +126,7 @@ describe('model test suite', () => {
 });
 
 afterAll(async () => {
+	await clear();
 	await firestore.terminate();
 	await app.delete();
 	await getFirestore().terminate();

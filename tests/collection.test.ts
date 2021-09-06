@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 import faker from 'faker';
 import { getFirestore, setFirestore, Collection } from '../src/firestore-eloquent';
-import { app, Comment, Post } from './app';
+import { app, clear, Comment, Post } from './app';
 
 let firestore: firebase.firestore.Firestore;
 let post: Post;
@@ -74,9 +74,23 @@ describe('collection test suite', () => {
 
 		expect(collection.length >= 0).toBeTruthy();
 	});
+
+	it('tests `toJSON`', async () => {
+		const posts = await Post.createQueryBuilder().all();
+		const data = posts.toJSON();
+		expect(data).toBeInstanceOf(Array);
+	});
+
+	it('gets a post by id', async () => {
+		const post = await new Post({ name: faker.random.words(3) }).save();
+		const posts = await Post.createQueryBuilder().all();
+		posts.set(post);
+		expect(posts.get(post.id())).toBeInstanceOf(Post);
+	});
 });
 
 afterAll(async () => {
+	await clear();
 	await firestore.terminate();
 	await app.delete();
 	await getFirestore().terminate();

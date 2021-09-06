@@ -10,7 +10,7 @@ import {
 	removeListener,
 	setFirestore,
 } from '../src/firestore-eloquent';
-import { app, Post } from './app';
+import { app, clear, Post } from './app';
 
 let firestore: firebase.firestore.Firestore;
 let post: Post;
@@ -59,6 +59,7 @@ describe('db test suite', () => {
 });
 
 afterAll(async () => {
+	await clear();
 	await firestore.terminate();
 	await app.delete();
 	await getFirestore().terminate();

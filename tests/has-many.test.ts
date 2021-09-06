@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 import faker from 'faker';
 import { getFirestore, Model, setFirestore, Collection } from '../src/firestore-eloquent';
-import { app, Comment, Post } from './app';
+import { app, clear, Comment, Post } from './app';
 
 let firestore: firebase.firestore.Firestore;
 let post: Post;
@@ -100,6 +100,7 @@ describe('model `hasMany` relationship test suite', () => {
 });
 
 afterAll(async () => {
+	await clear();
 	await firestore.terminate();
 	await app.delete();
 	await getFirestore().terminate();
