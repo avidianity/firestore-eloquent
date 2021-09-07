@@ -8,6 +8,8 @@ export interface ModelData {
 	updated_at?: string;
 }
 
+export type ModelDataType<T> = T extends Model<infer D> ? D : ModelData;
+
 export interface InteractsWithRelationship<T extends Model> {
 	get(): Promise<T | Collection<T> | null>;
 	create(data: any): Promise<T | Collection<T>>;

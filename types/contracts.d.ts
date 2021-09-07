@@ -6,6 +6,7 @@ export interface ModelData {
     created_at?: string;
     updated_at?: string;
 }
+export declare type ModelDataType<T> = T extends Model<infer D> ? D : ModelData;
 export interface InteractsWithRelationship<T extends Model> {
     get(): Promise<T | Collection<T> | null>;
     create(data: any): Promise<T | Collection<T>>;

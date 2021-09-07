@@ -8,6 +8,18 @@ export type TestData = {
 	name: string;
 } & ModelData;
 
+export interface PostData extends ModelData {
+	name: string;
+}
+
+export interface CommentData extends ModelData {
+	name: string;
+}
+
+export interface ImageData extends ModelData {
+	name: string;
+}
+
 export class TestModel extends Model<TestData> {
 	type = TestModel;
 
@@ -16,7 +28,7 @@ export class TestModel extends Model<TestData> {
 	}
 }
 
-export class Post extends Model<TestData> {
+export class Post extends Model<PostData> {
 	type = Post;
 
 	fillable() {
@@ -32,7 +44,7 @@ export class Post extends Model<TestData> {
 	}
 }
 
-export class Image extends Model<TestData & { post_id: string }> {
+export class Image extends Model<ImageData & { post_id: string }> {
 	type = Image;
 
 	fillable() {
@@ -44,7 +56,7 @@ export class Image extends Model<TestData & { post_id: string }> {
 	}
 }
 
-export class Comment extends Model<TestData & { post_id: string }> {
+export class Comment extends Model<CommentData & { post_id: string }> {
 	type = Comment;
 
 	fillable() {
